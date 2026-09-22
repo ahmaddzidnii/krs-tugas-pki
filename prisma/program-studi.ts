@@ -1,5 +1,5 @@
 import dataProdi from "./data/list-prodi.json";
-import { JenjangStudi, Prisma, PrismaClient } from "../app/generated/prisma/client";
+import { JenjangStudi, Prisma, PrismaClient } from "../src/generated/prisma/client";
 import { prismaInstanceForSeeding } from "./seed";
 
 

@@ -1,4 +1,4 @@
-import { Prisma } from '../app/generated/prisma/client';
+import { Prisma } from '../src/generated/prisma/client';
 import kurikulumjson from '../prisma/data/kurikulum_master.json';
 import { prismaInstanceForSeeding } from './seed';
 

@@ -1,5 +1,5 @@
 import * as bcrypt from 'bcryptjs';
-import { Prisma, JenisDosen } from '../app/generated/prisma/client';
+import { Prisma, JenisDosen } from '../src/generated/prisma/client';
 import dosenData from './data/gabungan_dosen.json';
 import { prismaInstanceForSeeding } from './seed';
 

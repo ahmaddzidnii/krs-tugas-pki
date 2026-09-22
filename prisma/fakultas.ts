@@ -1,4 +1,4 @@
-import { Prisma } from "../app/generated/prisma/client";
+import { Prisma } from "../src/generated/prisma/client";
 import { prismaInstanceForSeeding } from "./seed";
 
 const FAKULTAS_DATA = [

@@ -3,7 +3,7 @@ import {
     Prisma,
     StatusMahasiswa,
     StatusPembayaran,
-} from '../app/generated/prisma/client';
+} from '../src/generated/prisma/client';
 import dataMhs from '../prisma/data/angkatan-2023.json';
 import { prismaInstanceForSeeding } from './seed';
 

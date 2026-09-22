@@ -93,8 +93,19 @@ model User {
   role       Role       @relation(fields: [id_role], references: [id_role])
   mahasiswa  Mahasiswa?
   dosen      Dosen?
+  sessions   Session[]
 
   @@map("users")
+}
+
+model Session {
+  id_session String   @id 
+  id_user    String
+  expires_at BigInt 
+
+  user       User     @relation(fields: [id_user], references: [id_user], onDelete: Cascade)
+
+  @@map("sessions")
 }
 
 model Role {

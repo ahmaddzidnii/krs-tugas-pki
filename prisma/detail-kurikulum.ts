@@ -1,4 +1,4 @@
-import { JenisMatkul } from '../app/generated/prisma/client';
+import { JenisMatkul } from '../src/generated/prisma/client';
 import kurikulumjson from '../prisma/data/detail_kurikulum_penghubung.json';
 import { prismaInstanceForSeeding } from './seed';
 

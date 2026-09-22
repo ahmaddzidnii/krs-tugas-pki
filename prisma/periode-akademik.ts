@@ -1,4 +1,4 @@
-import { PeriodeAkademik } from "../app/generated/prisma/client";
+import { PeriodeAkademik } from "../src/generated/prisma/client";
 import { prismaInstanceForSeeding } from "./seed";
 
 export async function seedPeriodeAkademik() {
