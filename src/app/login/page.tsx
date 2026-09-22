@@ -2,9 +2,11 @@ import { Logo } from "@/components/logo";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 import LoginForm from "./login-form";
-import { getKrsScheduleStatus } from "@/lib/services/krs-schedule";
+import { getKrsScheduleStatus } from "@/lib/krs-schedule";
+import { requireUnAuth } from "@/lib/auth";
 
 const Page = async () => {
+  await requireUnAuth();
   const { isKrsOpen, reason, periode } = await getKrsScheduleStatus();
 
   const formatTanggal = (date: Date) =>
