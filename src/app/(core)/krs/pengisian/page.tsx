@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState, memo } from "react";
+import { useCallback, useState } from "react";
 import { FaSync } from "react-icons/fa";
 import { FaExclamation, FaListCheck, FaPlus, FaTrash } from "react-icons/fa6";
 
@@ -57,7 +57,7 @@ const InformasiUmumSection = () => (
 
 /* ---------------- UI SECTIONS ---------------- */
 
-const PengisianKrsButton = memo(({ isVisible }: { isVisible: boolean }) => {
+const PengisianKrsButton = ({ isVisible }: { isVisible: boolean }) => {
   if (!isVisible) return null;
 
   return (
@@ -74,9 +74,9 @@ const PengisianKrsButton = memo(({ isVisible }: { isVisible: boolean }) => {
       </Link>
     </Button>
   );
-});
+};
 
-const SyaratPengisianSection = memo(({ onSyaratEnabled, isKrsEnabled }: { onSyaratEnabled: (enabled: boolean) => void; isKrsEnabled: boolean }) => (
+const SyaratPengisianSection = ({ onSyaratEnabled, isKrsEnabled }: { onSyaratEnabled: (enabled: boolean) => void; isKrsEnabled: boolean }) => (
   <Tabs defaultValue="syaratPengisian">
     <TabsList>
       <TabsTrigger value="syaratPengisian">Syarat Pengisian</TabsTrigger>
@@ -92,9 +92,9 @@ const SyaratPengisianSection = memo(({ onSyaratEnabled, isKrsEnabled }: { onSyar
       </div>
     </TabsContent>
   </Tabs>
-));
+);
 
-const InfoAlerts = memo(() => (
+const InfoAlerts = () => (
   <>
     <Alert variant="info">
       <p className="text-sm">Apabila kuota penuh, mata kuliah tidak ada, atau jadwal bentrok, silakan hubungi Program Studi.</p>
@@ -106,9 +106,9 @@ const InfoAlerts = memo(() => (
       </p>
     </Alert>
   </>
-));
+);
 
-const LegendSection = memo(() => (
+const LegendSection = () => (
   <div>
     <h2 className="mb-4 text-sm font-bold">Keterangan :</h2>
 
@@ -151,9 +151,9 @@ const LegendSection = memo(() => (
       </li>
     </ul>
   </div>
-));
+);
 
-const InformasiTabs = memo(() => (
+const InformasiTabs = () => (
   <Tabs defaultValue="informasiUmum">
     <TabsList>
       <TabsTrigger value="informasiUmum">Informasi Umum</TabsTrigger>
@@ -172,9 +172,9 @@ const InformasiTabs = memo(() => (
       <DataKrsSection />
     </TabsContent>
   </Tabs>
-));
+);
 
-const PenawaranKelasSection = memo(() => (
+const PenawaranKelasSection = () => (
   <div
     id="isi-krs"
     className="flex flex-col rounded-[5px] bg-white p-5 shadow"
@@ -191,4 +191,4 @@ const PenawaranKelasSection = memo(() => (
       <TabelPenawaranKelasBatch />
     </div>
   </div>
-));
+);

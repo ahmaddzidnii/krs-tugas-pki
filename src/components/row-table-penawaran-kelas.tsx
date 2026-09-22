@@ -2,6 +2,7 @@ import { FaSync } from "react-icons/fa";
 import { FaExclamation, FaPlus, FaTrash } from "react-icons/fa6";
 
 import { Button } from "@/components/ui/button";
+import type { KelasKuliah } from "@/lib/krs-data";
 
 export interface BatchStatus {
   terisi: number;
@@ -15,7 +16,7 @@ export interface BatchStatusResponse {
 }
 
 interface RowTablePenawaranKelasProps {
-  kelas: any;
+  kelas: KelasKuliah;
   index: number;
   statusKouta: BatchStatus;
 }
@@ -36,9 +37,9 @@ export const RowTablePenawaranKelas = ({ kelas, index, statusKouta }: RowTablePe
       <td className="border px-4 py-3 uppercase align-top">{kelas.jenis_mata_kuliah}</td>
 
       <td className="border px-4 py-3 align-top">
-        {kelas.jadwal.map((j: any, idx: number) => (
+        {kelas.jadwal.map((j) => (
           <div
-            key={idx}
+            key={`${j.hari}-${j.waktu_mulai}-${j.ruangan}`}
             className="mb-4 last:mb-0"
           >
             <div>
@@ -52,7 +53,7 @@ export const RowTablePenawaranKelas = ({ kelas, index, statusKouta }: RowTablePe
       </td>
 
       <td className="border px-4 py-3 align-top">
-        {kelas.dosen_pengajar.map((d: any) => (
+        {kelas.dosen_pengajar.map((d) => (
           <div key={d.nip_dosen}>{d.nama_dosen}</div>
         ))}
       </td>
