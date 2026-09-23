@@ -1,47 +1,18 @@
 import { z } from 'zod';
 
-import { createTRPCRouter, protectedProcedure } from '../init';
 import prisma from '@/lib/prisma';
+import { formatJam } from '@/lib/utils';
 import { TRPCError } from '@trpc/server';
+import { getSyaratKrsList } from '@/lib/krs-rule';
 import { hitungJatahSKS } from '@/lib/hitung-jatah-sks';
 
-const STATUS_MAHASISWA_MAP: Record<string, string> = {
-    AKTIF: 'Aktif',
-    CUTI: 'Cuti',
-    DISPENSASI: 'Dispensasi',
-};
+import { createTRPCRouter, krsActionProcedure, krsProcedure } from '../init';
 
-const STATUS_PEMBAYARAN_MAP: Record<string, string> = {
-    LUNAS: 'Sudah Bayar',
-    BELUM_LUNAS: 'Belum Bayar',
-};
 
 export const krsRouter = createTRPCRouter({
-    getInformasiUmum: protectedProcedure.query(async ({ ctx }) => {
-        const userId = ctx.auth?.user.id;
-
-        const [periodeAktif, mahasiswa] = await Promise.all([
-            prisma.periodeAkademik.findFirst({
-                where: { is_active: true },
-            }),
-            prisma.mahasiswa.findUnique({
-                where: { id_user: userId },
-            }),
-        ]);
-
-        if (!periodeAktif) {
-            throw new TRPCError({
-                code: 'NOT_FOUND',
-                message: 'Periode akademik aktif tidak ditemukan',
-            });
-        }
-
-        if (!mahasiswa) {
-            throw new TRPCError({
-                code: 'NOT_FOUND',
-                message: 'Mahasiswa not found',
-            });
-        }
+    getInformasiUmum: krsProcedure.query(async ({ ctx }) => {
+        const mahasiswa = ctx.mahasiswa;
+        const periodeAktif = ctx.periodeAktif;
 
         const krs = await prisma.krs.findUnique({
             where: {
@@ -86,67 +57,13 @@ export const krsRouter = createTRPCRouter({
         };
     }),
 
-    getSyaratKrs: protectedProcedure.query(async ({ ctx }) => {
-        const userId = ctx.auth?.user.id;
-
-        const mahasiswa = await prisma.mahasiswa.findUnique({
-            where: { id_user: userId },
-        });
-
-        if (!mahasiswa) {
-            throw new TRPCError({
-                code: 'NOT_FOUND',
-                message: 'Mahasiswa not found',
-            });
-        }
-
-        const isSemesterValid = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].includes(
-            mahasiswa.semester_berjalan
-        );
-
-        return [
-            {
-                syarat: 'Bayar Biaya Pendidikan = Lunas',
-                isi: STATUS_PEMBAYARAN_MAP[mahasiswa.status_pembayaran] ?? 'Tidak Diketahui',
-                boolean: mahasiswa.status_pembayaran === 'LUNAS',
-            },
-            {
-                syarat: 'Semester Mahasiswa = 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14',
-                isi: mahasiswa.semester_berjalan,
-                boolean: isSemesterValid,
-            },
-            {
-                syarat: 'Status Mahasiswa = Aktif',
-                isi: STATUS_MAHASISWA_MAP[mahasiswa.status_mahasiswa] ?? 'Tidak Diketahui',
-                boolean: mahasiswa.status_mahasiswa === 'AKTIF',
-            },
-        ];
+    getSyaratKrs: krsProcedure.query(async ({ ctx }) => {
+        return getSyaratKrsList(ctx.mahasiswa, ctx.periodeAktif);
     }),
 
-    getPenawaranKelas: protectedProcedure.query(async ({ ctx, }) => {
-        const userId = ctx.auth?.user.id;
-
-        const periodeAktif = await prisma.periodeAkademik.findFirst({
-            where: { is_active: true },
-        });
-
-        if (!periodeAktif) {
-            throw new TRPCError({
-                code: 'NOT_FOUND',
-                message: 'Periode akademik aktif tidak ditemukan',
-            });
-        }
-
-        const mahasiswa = await prisma.mahasiswa.findUnique({
-            where: { id_user: userId },
-        });
-
-        if (!mahasiswa) {
-            throw new TRPCError({
-                code: 'NOT_FOUND',
-                message: 'Mahasiswa not found',
-            });
-        }
+    getPenawaranKelas: krsProcedure.query(async ({ ctx, }) => {
+        const mahasiswa = ctx.mahasiswa;
+        const periodeAktif = ctx.periodeAktif;
 
         const penawaran = await prisma.kelasDitawarkan.findMany({
             where: {
@@ -252,41 +169,14 @@ export const krsRouter = createTRPCRouter({
         };
     }),
 
-    getStatusKuotaKelasBatch: protectedProcedure.input(
+    getStatusKuotaKelasBatch: krsProcedure.input(
         z.object({
             id_kelas: z.array(z.string()),
         })
     ).mutation(async ({ input, ctx }) => {
 
-        const periodAktif = await prisma.periodeAkademik.findFirst({
-            where: {
-                is_active: true,
-            },
-        });
-
-        if (!periodAktif) {
-            throw new TRPCError({
-                code: 'NOT_FOUND',
-                message: 'Periode akademik aktif tidak ditemukan',
-            });
-        }
-
-        const mahasiswa = await prisma.mahasiswa.findUnique({
-            where: {
-                id_user: ctx.auth!.user.id,
-            },
-            select: {
-                id_mahasiswa: true,
-            },
-        });
-
-        if (!mahasiswa) {
-            throw new TRPCError({
-                code: 'NOT_FOUND',
-                message: 'Mahasiswa tidak ditemukan',
-            });
-        }
-
+        const mahasiswa = ctx.mahasiswa;
+        const periodAktif = ctx.periodeAktif;
 
         const statusKouta = await prisma.kelasDitawarkan.findMany({
             where: {
@@ -333,30 +223,10 @@ export const krsRouter = createTRPCRouter({
     }
     ),
 
-    getDataKelasYangDiambil: protectedProcedure.query(async ({ ctx }) => {
-        const userId = ctx.auth?.user.id;
+    getDataKelasYangDiambil: krsProcedure.query(async ({ ctx }) => {
 
-        const periodeAktif = await prisma.periodeAkademik.findFirst({
-            where: { is_active: true },
-        });
-
-        if (!periodeAktif) {
-            throw new TRPCError({
-                code: 'NOT_FOUND',
-                message: 'Periode akademik aktif tidak ditemukan',
-            });
-        }
-
-        const mahasiswa = await prisma.mahasiswa.findUnique({
-            where: { id_user: userId },
-        });
-
-        if (!mahasiswa) {
-            throw new TRPCError({
-                code: 'NOT_FOUND',
-                message: 'Mahasiswa not found',
-            });
-        }
+        const mahasiswa = ctx.mahasiswa;
+        const periodeAktif = ctx.periodeAktif;
 
         const kelasDiambil = await prisma.detailKrs.findMany({
             where: {
@@ -431,72 +301,17 @@ export const krsRouter = createTRPCRouter({
         });
     }),
 
-    ambilKelas: protectedProcedure
+    ambilKelas: krsActionProcedure
         .input(
             z.object({
                 id_kelas: z.string(),
             })
         )
         .mutation(async ({ ctx, input }) => {
-            const userId = ctx.auth?.user.id;
+            const mahasiswa = ctx.mahasiswa;
+            const periode = ctx.periodeAktif;
 
             return prisma.$transaction(async (tx) => {
-                const periode = await tx.periodeAkademik.findFirst({
-                    where: {
-                        is_active: true,
-                    },
-                    select: {
-                        id_periode: true,
-                        tanggal_mulai_krs: true,
-                        tanggal_selesai_krs: true,
-                    },
-                });
-
-                if (!periode) {
-                    throw new TRPCError({
-                        code: "NOT_FOUND",
-                        message: "MAAF, TIDAK ADA PERIODE AKADEMIK YANG AKTIF.",
-                    });
-                }
-
-                const today = new Date();
-
-                if (
-                    today < periode.tanggal_mulai_krs ||
-                    today > periode.tanggal_selesai_krs
-                ) {
-                    throw new TRPCError({
-                        code: "FORBIDDEN",
-                        message: "MAAF, MASA PENGISIAN KRS TELAH DITUTUP.",
-                    });
-                }
-
-                const mahasiswa = await tx.mahasiswa.findUnique({
-                    where: {
-                        id_user: userId,
-                    },
-                });
-
-                if (!mahasiswa) {
-                    throw new TRPCError({
-                        code: "NOT_FOUND",
-                        message: "MAAF, DATA MAHASISWA TIDAK DITEMUKAN.",
-                    });
-                }
-
-                if (mahasiswa.status_pembayaran !== "LUNAS") {
-                    throw new TRPCError({
-                        code: "FORBIDDEN",
-                        message: "MAAF, STATUS PEMBAYARAN ANDA BELUM LUNAS.",
-                    });
-                }
-
-                if (mahasiswa.status_mahasiswa !== "AKTIF") {
-                    throw new TRPCError({
-                        code: "FORBIDDEN",
-                        message: "MAAF, ANDA TIDAK MEMENUHI SYARAT UNTUK MENGISI KRS.",
-                    });
-                }
 
                 const kelas = await tx.kelasDitawarkan.findUnique({
                     where: {
@@ -658,56 +473,16 @@ export const krsRouter = createTRPCRouter({
             });
         }),
 
-    hapusKelas: protectedProcedure
+    hapusKelas: krsActionProcedure
         .input(z.object({
             id_kelas: z.string(),
         }))
         .mutation(async ({ ctx, input }) => {
-            const userId = ctx.auth?.user.id;
+
+            const mahasiswa = ctx.mahasiswa;
+            const periode = ctx.periodeAktif;
+
             return prisma.$transaction(async (tx) => {
-                const periode = await tx.periodeAkademik.findFirst({
-                    where: {
-                        is_active: true,
-                    },
-                    select: {
-                        id_periode: true,
-                        tanggal_mulai_krs: true,
-                        tanggal_selesai_krs: true,
-                    },
-                });
-
-                if (!periode) {
-                    throw new TRPCError({
-                        code: "NOT_FOUND",
-                        message: "Periode akademik belum tersedia.",
-                    });
-                }
-
-                const today = new Date();
-
-                if (
-                    today < periode.tanggal_mulai_krs ||
-                    today > periode.tanggal_selesai_krs
-                ) {
-                    throw new TRPCError({
-                        code: "FORBIDDEN",
-                        message: "Masa pengisian KRS telah ditutup.",
-                    });
-                }
-
-                const mahasiswa = await tx.mahasiswa.findUnique({
-                    where: {
-                        id_user: userId,
-                    },
-                });
-
-                if (!mahasiswa) {
-                    throw new TRPCError({
-                        code: "NOT_FOUND",
-                        message: "Mahasiswa tidak ditemukan.",
-                    });
-                }
-
                 const kelas = await tx.kelasDitawarkan.findUnique({
                     where: {
                         id_kelas: input.id_kelas,
@@ -814,5 +589,3 @@ export const krsRouter = createTRPCRouter({
         })
 });
 
-const formatJam = (jam: number) =>
-    `${String(Math.floor(jam / 100)).padStart(2, "0")}:${String(jam % 100).padStart(2, "0")}`;

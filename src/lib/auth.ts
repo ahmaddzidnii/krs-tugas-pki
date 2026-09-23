@@ -1,13 +1,12 @@
 import "server-only";
+import { cache } from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import prisma from "./prisma";
-import { cache } from "react";
 
 export const getServerSideSession = cache(async () => {
     const cookieStore = await cookies();
-
     const token = cookieStore.get("session_token")?.value;
 
     if (!token) {
