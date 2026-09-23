@@ -37,7 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     await logoutMutation.mutateAsync();
     router.replace("/login");
-    router.refresh();
+    window.location.reload();
   };
 
   if (isLoading || !data?.user) {

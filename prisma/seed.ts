@@ -12,6 +12,7 @@ import { seedKurikulum } from "./kurikulum";
 import { seedMataKuliah } from "./mata-kuliah";
 import { seedDetailKurikulum } from "./detail-kurikulum";
 import { seedMahasiswa } from "./mahasiswa";
+import { seedKelasDitawarkan } from "./kelas";
 
 const adapter = new PrismaPg({
     connectionString: process.env.DATABASE_URL,
@@ -49,6 +50,8 @@ export async function main() {
 
     // 5. Bergantung ke Dosen + Kurikulum + Program Studi
     await seedMahasiswa(); // bikin User MAHASISWA + Mahasiswa
+
+    await seedKelasDitawarkan(); // bikin Kelas Ditawarkan + Dosen Pengajar Kelas + KRS + Detail KRS
 
     console.log("🏁 Seeding selesai.");
 }
