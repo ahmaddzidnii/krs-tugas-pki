@@ -53,6 +53,8 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   Fakultas: 'Fakultas',
   ProgramStudi: 'ProgramStudi',
+  Thread: 'Thread',
+  Message: 'Message',
   User: 'User',
   Session: 'Session',
   Role: 'Role',
@@ -108,6 +110,28 @@ export const ProgramStudiScalarFieldEnum = {
 } as const
 
 export type ProgramStudiScalarFieldEnum = (typeof ProgramStudiScalarFieldEnum)[keyof typeof ProgramStudiScalarFieldEnum]
+
+
+export const ThreadScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  expiresAt: 'expiresAt',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type ThreadScalarFieldEnum = (typeof ThreadScalarFieldEnum)[keyof typeof ThreadScalarFieldEnum]
+
+
+export const MessageScalarFieldEnum = {
+  id: 'id',
+  threadId: 'threadId',
+  role: 'role',
+  content: 'content',
+  created_at: 'created_at'
+} as const
+
+export type MessageScalarFieldEnum = (typeof MessageScalarFieldEnum)[keyof typeof MessageScalarFieldEnum]
 
 
 export const UserScalarFieldEnum = {

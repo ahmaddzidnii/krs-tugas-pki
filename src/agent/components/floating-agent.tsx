@@ -5,10 +5,16 @@ import { useState } from "react";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
-import { SukaKrsAgentModal } from "./suka-krs-agent-modal";
+import { AgentDialog } from "./agent-dialog";
+import { useAgent } from "@/contexts/agent-context";
+import { ChatSyncProvider } from "./chat-sync-provider";
 
-export function SukaKrsAgent() {
+export function FloatingAgent() {
   const [open, setOpen] = useState(false);
+
+  const { isReady } = useAgent();
+
+  if (!isReady) return null;
 
   return (
     <>
@@ -46,11 +52,12 @@ export function SukaKrsAgent() {
           </TooltipContent>
         </Tooltip>
       </div>
-
-      <SukaKrsAgentModal
-        open={open}
-        onClose={() => setOpen(false)}
-      />
+      <ChatSyncProvider>
+        <AgentDialog
+          open={open}
+          onClose={() => setOpen(false)}
+        />
+      </ChatSyncProvider>
     </>
   );
 }

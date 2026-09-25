@@ -1,16 +1,14 @@
 "use client";
 
-import { Alert } from "@/components/alert";
-import { Button } from "@/components/ui/button";
-import { useTRPC } from "@/trpc/client";
-import { useMutation } from "@tanstack/react-query";
-import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useState } from "react";
 import { FaLock, FaUser } from "react-icons/fa6";
-import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
+import { useTRPC } from "@/trpc/client";
+import { Alert } from "@/components/alert";
+import { Button } from "@/components/ui/button";
 
 const LoginForm = () => {
-  const router = useRouter();
   const trpc = useTRPC();
 
   const [username, setUsername] = useState("");
@@ -21,11 +19,7 @@ const LoginForm = () => {
   const mutation = useMutation(
     trpc.auth.login.mutationOptions({
       onSuccess: (data) => {
-        router.refresh();
-        router.push("/dash");
-      },
-      onError: () => {
-        // Error otomatis ditangkap oleh mutation.error
+        window.location.reload();
       },
     }),
   );

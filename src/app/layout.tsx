@@ -3,11 +3,11 @@ import type { Metadata } from "next";
 import { TRPCReactProvider } from "@/trpc/client";
 
 import "./globals.css";
-import Image from "next/image";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { SukaKrsAgent } from "@/components/agents/suka-krs-agent";
+import { AgentProvider } from "@/contexts/agent-context";
+import { AuthProvider } from "@/contexts/auth-context";
+import { FloatingAgent } from "@/agent/components/floating-agent";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -24,8 +24,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-full flex flex-col">
         <TooltipProvider>
           <TRPCReactProvider>
-            {children}
-            <SukaKrsAgent />
+            <AuthProvider>
+              <AgentProvider>
+                {children}
+                <FloatingAgent />
+              </AgentProvider>
+            </AuthProvider>
           </TRPCReactProvider>
         </TooltipProvider>
       </body>

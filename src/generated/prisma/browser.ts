@@ -28,6 +28,16 @@ export type Fakultas = Prisma.FakultasModel
  */
 export type ProgramStudi = Prisma.ProgramStudiModel
 /**
+ * Model Thread
+ * 
+ */
+export type Thread = Prisma.ThreadModel
+/**
+ * Model Message
+ * 
+ */
+export type Message = Prisma.MessageModel
+/**
  * Model User
  * 
  */

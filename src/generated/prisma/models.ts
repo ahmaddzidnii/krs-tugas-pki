@@ -10,6 +10,8 @@
  */
 export type * from './models/Fakultas'
 export type * from './models/ProgramStudi'
+export type * from './models/Thread'
+export type * from './models/Message'
 export type * from './models/User'
 export type * from './models/Session'
 export type * from './models/Role'

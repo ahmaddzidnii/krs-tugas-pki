@@ -399,6 +399,8 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   Fakultas: 'Fakultas',
   ProgramStudi: 'ProgramStudi',
+  Thread: 'Thread',
+  Message: 'Message',
   User: 'User',
   Session: 'Session',
   Role: 'Role',
@@ -428,7 +430,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "fakultas" | "programStudi" | "user" | "session" | "role" | "mahasiswa" | "dosen" | "periodeAkademik" | "kurikulum" | "mataKuliah" | "detailKurikulum" | "jadwalKelas" | "kelasDitawarkan" | "dosenPengajarKelas" | "krs" | "detailKrs"
+    modelProps: "fakultas" | "programStudi" | "thread" | "message" | "user" | "session" | "role" | "mahasiswa" | "dosen" | "periodeAkademik" | "kurikulum" | "mataKuliah" | "detailKurikulum" | "jadwalKelas" | "kelasDitawarkan" | "dosenPengajarKelas" | "krs" | "detailKrs"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -577,6 +579,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ProgramStudiCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ProgramStudiCountAggregateOutputType> | number
+        }
+      }
+    }
+    Thread: {
+      payload: Prisma.$ThreadPayload<ExtArgs>
+      fields: Prisma.ThreadFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ThreadFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ThreadFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadPayload>
+        }
+        findFirst: {
+          args: Prisma.ThreadFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ThreadFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadPayload>
+        }
+        findMany: {
+          args: Prisma.ThreadFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadPayload>[]
+        }
+        create: {
+          args: Prisma.ThreadCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadPayload>
+        }
+        createMany: {
+          args: Prisma.ThreadCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ThreadCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadPayload>[]
+        }
+        delete: {
+          args: Prisma.ThreadDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadPayload>
+        }
+        update: {
+          args: Prisma.ThreadUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadPayload>
+        }
+        deleteMany: {
+          args: Prisma.ThreadDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ThreadUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ThreadUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadPayload>[]
+        }
+        upsert: {
+          args: Prisma.ThreadUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadPayload>
+        }
+        aggregate: {
+          args: Prisma.ThreadAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateThread>
+        }
+        groupBy: {
+          args: Prisma.ThreadGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ThreadGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ThreadCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ThreadCountAggregateOutputType> | number
+        }
+      }
+    }
+    Message: {
+      payload: Prisma.$MessagePayload<ExtArgs>
+      fields: Prisma.MessageFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MessageFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MessagePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MessageFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MessagePayload>
+        }
+        findFirst: {
+          args: Prisma.MessageFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MessagePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MessageFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MessagePayload>
+        }
+        findMany: {
+          args: Prisma.MessageFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MessagePayload>[]
+        }
+        create: {
+          args: Prisma.MessageCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MessagePayload>
+        }
+        createMany: {
+          args: Prisma.MessageCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MessageCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MessagePayload>[]
+        }
+        delete: {
+          args: Prisma.MessageDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MessagePayload>
+        }
+        update: {
+          args: Prisma.MessageUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MessagePayload>
+        }
+        deleteMany: {
+          args: Prisma.MessageDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MessageUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MessageUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MessagePayload>[]
+        }
+        upsert: {
+          args: Prisma.MessageUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MessagePayload>
+        }
+        aggregate: {
+          args: Prisma.MessageAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMessage>
+        }
+        groupBy: {
+          args: Prisma.MessageGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MessageGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MessageCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MessageCountAggregateOutputType> | number
         }
       }
     }
@@ -1680,6 +1830,28 @@ export const ProgramStudiScalarFieldEnum = {
 export type ProgramStudiScalarFieldEnum = (typeof ProgramStudiScalarFieldEnum)[keyof typeof ProgramStudiScalarFieldEnum]
 
 
+export const ThreadScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  expiresAt: 'expiresAt',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type ThreadScalarFieldEnum = (typeof ThreadScalarFieldEnum)[keyof typeof ThreadScalarFieldEnum]
+
+
+export const MessageScalarFieldEnum = {
+  id: 'id',
+  threadId: 'threadId',
+  role: 'role',
+  content: 'content',
+  created_at: 'created_at'
+} as const
+
+export type MessageScalarFieldEnum = (typeof MessageScalarFieldEnum)[keyof typeof MessageScalarFieldEnum]
+
+
 export const UserScalarFieldEnum = {
   id_user: 'id_user',
   id_role: 'id_role',
@@ -1929,6 +2101,20 @@ export type EnumJenjangStudiFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
  * Reference to a field of type 'JenjangStudi[]'
  */
 export type ListEnumJenjangStudiFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JenjangStudi[]'>
+    
+
+
+/**
+ * Reference to a field of type 'MessageRole'
+ */
+export type EnumMessageRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MessageRole'>
+    
+
+
+/**
+ * Reference to a field of type 'MessageRole[]'
+ */
+export type ListEnumMessageRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MessageRole[]'>
     
 
 
@@ -2217,6 +2403,8 @@ export type PrismaClientOptions = PrismaClientOptionsWithAccelerateUrl | PrismaC
 export type GlobalOmitConfig = {
   fakultas?: Prisma.FakultasOmit
   programStudi?: Prisma.ProgramStudiOmit
+  thread?: Prisma.ThreadOmit
+  message?: Prisma.MessageOmit
   user?: Prisma.UserOmit
   session?: Prisma.SessionOmit
   role?: Prisma.RoleOmit

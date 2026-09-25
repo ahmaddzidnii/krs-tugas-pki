@@ -5,7 +5,7 @@
 
 generator client {
   provider = "prisma-client"
-  output   = "../app/generated/prisma"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -81,6 +81,35 @@ model ProgramStudi {
   fakultas      Fakultas     @relation(fields: [id_fakultas], references: [id_fakultas], onDelete: Cascade) // DITAMBAHKAN: Jika fakultas dihapus, prodi ikut terhapus.
 
   @@map("program_studi")
+}
+
+
+model Thread {
+  id        String    @id @default(uuid(7))
+  userId    String?
+  expiresAt BigInt?
+  created_at    BigInt?
+  updated_at    BigInt?
+  messages Message[]
+
+  @@map("threads")
+}
+model Message {
+  id        String      @id @default(uuid(7))
+  threadId  String
+  role      MessageRole
+  content   String      @db.Text
+    created_at    BigInt?
+
+  thread Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  @@index([threadId, created_at])
+  @@map("messages")
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
 }
 
 model User {

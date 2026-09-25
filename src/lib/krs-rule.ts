@@ -36,9 +36,14 @@ export function getSyaratKrsList(
 ): SyaratKrsItem[] {
     const today = new Date();
 
+    const tanggalMulai = new Date(periodeAktif.tanggal_mulai_krs);
+
+    const tanggalSelesai = new Date(periodeAktif.tanggal_selesai_krs);
+    tanggalSelesai.setHours(23, 59, 59, 999);
+
     const isJadwalValid =
-        today >= periodeAktif.tanggal_mulai_krs &&
-        today <= periodeAktif.tanggal_selesai_krs;
+        today >= tanggalMulai &&
+        today <= tanggalSelesai;
 
     const isSemesterValid =
         mahasiswa.semester_berjalan >= 3 &&

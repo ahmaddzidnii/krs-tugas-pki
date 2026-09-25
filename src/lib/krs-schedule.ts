@@ -2,6 +2,10 @@
 
 import prisma from "@/lib/prisma";
 
+import { formatInTimeZone } from "date-fns-tz";
+
+const TZ = "Asia/Jakarta";
+
 export async function getKrsScheduleStatus() {
     const now = new Date();
 
@@ -17,13 +21,12 @@ export async function getKrsScheduleStatus() {
         };
     }
 
-    const tanggalSelesai = new Date(periode.tanggal_selesai_krs);
-    tanggalSelesai.setHours(23, 59, 59, 999);
+    // Tanggal dalam WIB (YYYY-MM-DD)
+    const today = formatInTimeZone(now, TZ, "yyyy-MM-dd");
+    const startDate = formatInTimeZone(periode.tanggal_mulai_krs, TZ, "yyyy-MM-dd");
+    const endDate = formatInTimeZone(periode.tanggal_selesai_krs, TZ, "yyyy-MM-dd");
 
-    const isWithinDateRange =
-        now >= periode.tanggal_mulai_krs && now <= tanggalSelesai;
-
-    if (!isWithinDateRange) {
+    if (today < startDate || today > endDate) {
         return {
             isKrsOpen: false,
             reason: "OUTSIDE_DATE" as const,
@@ -31,16 +34,21 @@ export async function getKrsScheduleStatus() {
         };
     }
 
+    const [hour, minute] = formatInTimeZone(now, TZ, "HH:mm")
+        .split(":")
+        .map(Number);
+
+    const currentMinutes = hour * 60 + minute;
+
     const toMinutes = (time: string) => {
         const [h, m] = time.split(":").map(Number);
         return h * 60 + m;
     };
 
-    const currentMinutes = now.getHours() * 60 + now.getMinutes();
     const startMinutes = toMinutes(periode.waktu_buka_harian);
     const endMinutes = toMinutes(periode.waktu_tutup_harian);
 
-    if (currentMinutes < startMinutes || currentMinutes > endMinutes) {
+    if (currentMinutes < startMinutes || currentMinutes >= endMinutes) {
         return {
             isKrsOpen: false,
             reason: "OUTSIDE_TIME" as const,

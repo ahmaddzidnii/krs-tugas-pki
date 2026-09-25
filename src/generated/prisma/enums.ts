@@ -72,3 +72,11 @@ export const Hari = {
 } as const
 
 export type Hari = (typeof Hari)[keyof typeof Hari]
+
+
+export const MessageRole = {
+  USER: 'USER',
+  ASSISTANT: 'ASSISTANT'
+} as const
+
+export type MessageRole = (typeof MessageRole)[keyof typeof MessageRole]
