@@ -8,7 +8,7 @@ import { getKrsSystemPrompt } from "./lib/prompts";
 
 import { LOGOUT_USER } from "./tools/logout_user";
 import { GET_CLASS_SCHEDULE } from "./tools/class_schedule";
-import { GET_ACADEMIC_RULES } from "./tools/academic_rules";
+import { SEARCH_ACADEMIC_RULES } from "./tools/academic_rules";
 import { GET_CURRENT_DATETIME } from "./tools/current_datetime";
 import { GET_COURSE_INFORMATION } from "./tools/course_information";
 import { GET_KRS_SCHEDULE_STATUS } from "./tools/krs_schedule_status";
@@ -24,7 +24,7 @@ import { REMOVE_KRS_COURSE } from "./tools/remove_krs_course";
 const PUBLIC_TOOLS: StructuredToolInterface[] = [
     GET_CURRENT_DATETIME,
     GET_KRS_SCHEDULE_STATUS,
-    GET_ACADEMIC_RULES,
+    SEARCH_ACADEMIC_RULES,
     GET_COURSE_INFORMATION,
     GET_CLASS_SCHEDULE,
 ];
@@ -68,7 +68,7 @@ export class KrsAgent {
     private async loadMemory() {
         const chatHistory = await prisma.message.findMany({
             where: { threadId: this.threadId },
-            orderBy: { created_at: "asc" },
+            orderBy: { created_at: "desc" },
             take: 12,
         });
 
@@ -77,7 +77,7 @@ export class KrsAgent {
             msg.role === "USER"
                 ? new HumanMessage(msg.content)
                 : new AIMessage(msg.content)
-        );
+        ).reverse();
     }
 
     public async streamResponse(userMessage: string): Promise<ReadableStream> {

@@ -1,27 +1,37 @@
+// src/ai/tools/academic-rules.tool.ts
 import { z } from "zod";
 import { tool } from "@langchain/core/tools";
+import { searchVectorStore } from "../rag/vectorstore";
 
-export const GET_ACADEMIC_RULES = tool(
-    async ({ topic }) => {
-        const text = topic.toLowerCase();
+export const SEARCH_ACADEMIC_RULES = tool(
+    async ({ query }) => {
+        try {
+            const results = await searchVectorStore(query, 3);
 
-        if (text.includes("sks") || text.includes("ipk")) {
-            return `
-Aturan beban SKS berdasarkan IPK:
-- IPK < 2.00 → maksimal 12 SKS.
-- IPK 2.00–2.49 → maksimal 16 SKS.
-- IPK 2.50–2.99 → maksimal 20 SKS.
-- IPK ≥ 3.00 → maksimal 24 SKS.
-      `.trim();
+            if (!results.length || results[0].score < 0.3) {
+                return "Aturan akademik terkait hal tersebut tidak ditemukan di dokumen panduan manapun.";
+            }
+
+            // Format output mencakup nama file dokumen & nomor halamannya
+            return results
+                .map((r, i) => {
+                    const confidence = (r.score * 100).toFixed(1);
+                    return `[Dokumen: "${r.fileName}" | Hal. ${r.page} | Relevansi: ${confidence}%]:\n${r.content}`;
+                })
+                .join("\n\n---\n\n");
+        } catch (error: any) {
+            console.error("[SEARCH_ACADEMIC_RULES_ERROR]:", error);
+            return `Gagal mengakses data aturan akademik: ${error.message}`;
         }
-
-        return "Aturan akademik tidak ditemukan.";
     },
     {
-        name: "GET_ACADEMIC_RULES",
-        description: "Mengambil aturan akademik seperti batas SKS, IPK, prasyarat umum, dan ketentuan KRS.",
+        name: "SEARCH_ACADEMIC_RULES",
+        description:
+            "Mencari aturan akademik resmi kampus (batas SKS berdasarkan IPK, syarat cuti, sanksi DO, ketentuan KRS, kurikulum) dari seluruh buku pedoman PDF yang tersedia.",
         schema: z.object({
-            topic: z.string().describe("Topik aturan akademik yang ingin dicari."),
+            query: z
+                .string()
+                .describe("Pertanyaan atau topik aturan akademik yang dicari."),
         }),
     }
 );

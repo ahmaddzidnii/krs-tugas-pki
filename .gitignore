@@ -2,6 +2,10 @@
 
 /prisma/data
 
+# Data RAG Lokal
+/data/vectorstore/
+*.index
+
 # dependencies
 /node_modules
 /.pnp

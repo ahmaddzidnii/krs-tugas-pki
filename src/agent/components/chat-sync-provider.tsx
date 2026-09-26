@@ -11,7 +11,11 @@ interface ChatSyncProviderProps {
 
 export const ChatSyncProvider = ({ children }: ChatSyncProviderProps) => {
   const trpc = useTRPC();
-  const { data: messagesData, isLoading } = useQuery(trpc.agent.loadChat.queryOptions());
+  const { data: messagesData, isLoading } = useQuery(
+    trpc.agent.loadChat.queryOptions(undefined, {
+      refetchOnWindowFocus: false,
+    }),
+  );
 
   useEffect(() => {
     if (messagesData) {
