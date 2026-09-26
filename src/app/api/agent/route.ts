@@ -3,6 +3,7 @@ import { z } from "zod";
 import { KrsAgent } from "@/agent/krs";
 import { getServerSideSession } from "@/lib/auth";
 import { cookies } from "next/headers";
+import { getKrsScheduleStatus } from "@/lib/krs-schedule";
 
 export const chatRequestSchema = z.object({
     message: z
@@ -33,10 +34,10 @@ export async function POST(request: Request) {
 
     const session = await getServerSideSession();
 
-    const sessionId = session?.session.id ? session.session.id : null;
-
     const cookieStore = await cookies();
     const threadId = cookieStore.get("agent_thread_id")?.value;
+
+    const scheduleStatus = await getKrsScheduleStatus();
 
     if (!threadId) {
         return Response.json(
@@ -50,7 +51,11 @@ export async function POST(request: Request) {
 
     const agent = new KrsAgent({
         threadId,
-        authSession: sessionId,
+        apiKey: process.env.GOOGLE_GENAI_API_KEY!,
+        context: {
+            sessionId: session?.session.id,
+            isKrsOpen: scheduleStatus.isKrsOpen,
+        }
     });
 
     const stream = await agent.streamResponse(message);

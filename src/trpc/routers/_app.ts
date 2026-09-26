@@ -21,7 +21,6 @@ export const appRouter = createTRPCRouter({
                 orderBy: { created_at: 'asc' },
                 omit: {
                     threadId: true,
-                    created_at: true,
                 },
             });
 
