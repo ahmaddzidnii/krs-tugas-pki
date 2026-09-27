@@ -1,5 +1,5 @@
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
-import { AIMessage, createAgent, HumanMessage } from "langchain";
+import { AIMessage, createAgent, HumanMessage, SystemMessage } from "langchain";
 import type { StructuredToolInterface } from "@langchain/core/tools";
 
 import prisma from "@/lib/prisma";
@@ -7,10 +7,8 @@ import prisma from "@/lib/prisma";
 import { getKrsSystemPrompt } from "./lib/prompts";
 
 import { LOGOUT_USER } from "./tools/logout_user";
-import { GET_CLASS_SCHEDULE } from "./tools/class_schedule";
 import { SEARCH_ACADEMIC_RULES } from "./tools/academic_rules";
 import { GET_CURRENT_DATETIME } from "./tools/current_datetime";
-import { GET_COURSE_INFORMATION } from "./tools/course_information";
 import { GET_KRS_SCHEDULE_STATUS } from "./tools/krs_schedule_status";
 import { GET_CURRENT_KRS_INFO } from "./tools/get_current_krs_info";
 import { GET_KRS_REQUIREMENTS } from "./tools/get_krs_requirements";
@@ -19,14 +17,13 @@ import { GET_CURRENT_KRS } from "./tools/get_current_krs";
 import { GET_COURSE_CAPACITY } from "./tools/get_course_capacity";
 import { ADD_KRS_COURSE } from "./tools/add_krs_course";
 import { REMOVE_KRS_COURSE } from "./tools/remove_krs_course";
+import { getServerSideSession } from "@/lib/auth";
 
 
 const PUBLIC_TOOLS: StructuredToolInterface[] = [
     GET_CURRENT_DATETIME,
     GET_KRS_SCHEDULE_STATUS,
     SEARCH_ACADEMIC_RULES,
-    GET_COURSE_INFORMATION,
-    GET_CLASS_SCHEDULE,
 ];
 
 const AUTHENTICATED_INFO_TOOLS: StructuredToolInterface[] = [
@@ -44,7 +41,7 @@ const KRS_ACTION_TOOLS: StructuredToolInterface[] = [
 ];
 
 interface KrsAgentContext extends Record<string, unknown> {
-    sessionId?: string;
+    session?: Awaited<ReturnType<typeof getServerSideSession>>;
     isKrsOpen?: boolean;
 }
 
@@ -82,7 +79,7 @@ export class KrsAgent {
 
     public async streamResponse(userMessage: string): Promise<ReadableStream> {
         const threadId = this.threadId;
-        const isGuest = !this.context.sessionId;
+        const isGuest = !this.context.session;
 
         // Load tools based on context
         const availableTools = [...PUBLIC_TOOLS];
@@ -97,9 +94,30 @@ export class KrsAgent {
 
         const formattedHistory = await this.loadMemory();
 
-        const systemPrompt = getKrsSystemPrompt(isGuest);
+
         const humanMessage = new HumanMessage(userMessage);
 
+        const mahasiswa = this.context.session?.user
+
+        const baseSystemPrompt = getKrsSystemPrompt(isGuest);
+
+        const studentContext = mahasiswa
+            ? new SystemMessage(`
+KONTEKS MAHASISWA SAAT INI:
+- Nama: ${mahasiswa.nama}
+- Program Studi: ${mahasiswa.programStudi.jenjang_studi} ${mahasiswa.programStudi.nama}
+- Fakultas: ${mahasiswa.fakultas}
+`.trim())
+            : null;
+
+        const systemPrompt = new SystemMessage(
+            [
+                baseSystemPrompt.content,
+                studentContext?.content,
+            ]
+                .filter(Boolean)
+                .join("\n\n")
+        );
         const messages = [
             systemPrompt,
             ...formattedHistory,
@@ -116,7 +134,12 @@ export class KrsAgent {
 
         const eventStream = agent.streamEvents(
             { messages: messages },
-            { version: "v2", configurable: { sessionId: this.context.sessionId } }
+            {
+                version: "v2",
+                configurable: {
+                    session: this.context.session,
+                }
+            }
 
         );
 

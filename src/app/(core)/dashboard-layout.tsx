@@ -118,7 +118,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     };
   }, [isSidebarOpen, isMobile, isInitialized]);
 
-  const { isLoading, user, logout } = useAuth();
+  const { user, logout } = useAuth();
 
   const handleLogout = async () => {
     await logout();
@@ -163,6 +163,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               <div className="text-center">
                 <p className="font-semibold uppercase text-[#777777]">{user?.nama ?? "PTIPD"}</p>
                 <p className="text-[#777777] text-[13px]">{user?.username ?? "001"}</p>
+                <p className="text-[#777777] text-[13px]">{user?.fakultas ?? "001"}</p>
+                <p className="text-[#777777] text-[13px]">{user?.programStudi ?? "001"}</p>
               </div>
             </div>
           </div>

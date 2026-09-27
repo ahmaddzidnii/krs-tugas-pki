@@ -25,7 +25,18 @@ export const getServerSideSession = cache(async () => {
                 include: {
                     mahasiswa: {
                         select: {
-                            nama: true
+                            nama: true,
+                            programStudi: {
+                                select: {
+                                    nama: true,
+                                    jenjang_studi: true,
+                                    fakultas: {
+                                        select: {
+                                            nama: true
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -46,7 +57,12 @@ export const getServerSideSession = cache(async () => {
         user: {
             id: sessionWithUser.user.id_user,
             username: sessionWithUser.user.username,
-            nama: sessionWithUser.user.mahasiswa?.nama
+            nama: sessionWithUser.user.mahasiswa?.nama,
+            fakultas: sessionWithUser.user.mahasiswa?.programStudi?.fakultas?.nama,
+            programStudi: {
+                nama: sessionWithUser.user.mahasiswa?.programStudi?.nama,
+                jenjang_studi: sessionWithUser.user.mahasiswa?.programStudi?.jenjang_studi,
+            }
 
         }
     };

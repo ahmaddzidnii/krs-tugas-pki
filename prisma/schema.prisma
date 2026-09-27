@@ -78,6 +78,7 @@ model ProgramStudi {
   created_at    BigInt?
   updated_at    BigInt?
   kurikulum     Kurikulum[]
+  mahasiswa    Mahasiswa[]
   fakultas      Fakultas     @relation(fields: [id_fakultas], references: [id_fakultas], onDelete: Cascade) // DITAMBAHKAN: Jika fakultas dihapus, prodi ikut terhapus.
 
   @@map("program_studi")
@@ -167,6 +168,7 @@ model Mahasiswa {
   user              User            @relation(fields: [id_user], references: [id_user], onDelete: Cascade) // DITAMBAHKAN: Jika user dihapus, data mahasiswa ikut terhapus.
   krs               Krs[]
   kurikulum         Kurikulum       @relation(fields: [id_kurikulum], references: [id_kurikulum])
+  programStudi  ProgramStudi  @relation(fields: [id_prodi], references: [id_prodi])
 
   @@map("mahasiswas")
 }

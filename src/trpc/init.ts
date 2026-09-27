@@ -11,11 +11,13 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
             user: {
                 id: session.user.id,
                 username: session.user.username,
-                nama: session.user.nama
+                nama: session.user.nama,
+                fakultas: session.user.fakultas,
+                programStudi: session.user.programStudi
             },
             session: {
                 id: session.session.id,
-                expires_at: session.session.expires_at
+                expiresAt: session.session.expires_at
             }
         } : null
     };

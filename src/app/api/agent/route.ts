@@ -53,7 +53,7 @@ export async function POST(request: Request) {
         threadId,
         apiKey: process.env.GOOGLE_GENAI_API_KEY!,
         context: {
-            sessionId: session?.session.id,
+            session,
             isKrsOpen: scheduleStatus.isKrsOpen,
         }
     });

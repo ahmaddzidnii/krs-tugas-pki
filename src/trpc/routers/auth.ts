@@ -78,6 +78,15 @@ export const authRouter = createTRPCRouter({
     }),
 
     session: baseProcedure.query(async ({ ctx }) => {
-        return ctx.auth;
+        if (!ctx.auth) return null;
+
+        const { id, ...userWithoutId } = ctx.auth.user;
+        const { id: _sessionId, ...session } = ctx.auth.session;
+
+        return {
+            ...ctx.auth,
+            user: userWithoutId,
+            session,
+        };
     }),
 });

@@ -237,6 +237,7 @@ export type ProgramStudiWhereInput = {
   created_at?: Prisma.BigIntNullableFilter<"ProgramStudi"> | bigint | number | null
   updated_at?: Prisma.BigIntNullableFilter<"ProgramStudi"> | bigint | number | null
   kurikulum?: Prisma.KurikulumListRelationFilter
+  mahasiswa?: Prisma.MahasiswaListRelationFilter
   fakultas?: Prisma.XOR<Prisma.FakultasScalarRelationFilter, Prisma.FakultasWhereInput>
 }
 
@@ -249,6 +250,7 @@ export type ProgramStudiOrderByWithRelationInput = {
   created_at?: Prisma.SortOrderInput | Prisma.SortOrder
   updated_at?: Prisma.SortOrderInput | Prisma.SortOrder
   kurikulum?: Prisma.KurikulumOrderByRelationAggregateInput
+  mahasiswa?: Prisma.MahasiswaOrderByRelationAggregateInput
   fakultas?: Prisma.FakultasOrderByWithRelationInput
 }
 
@@ -264,6 +266,7 @@ export type ProgramStudiWhereUniqueInput = Prisma.AtLeast<{
   created_at?: Prisma.BigIntNullableFilter<"ProgramStudi"> | bigint | number | null
   updated_at?: Prisma.BigIntNullableFilter<"ProgramStudi"> | bigint | number | null
   kurikulum?: Prisma.KurikulumListRelationFilter
+  mahasiswa?: Prisma.MahasiswaListRelationFilter
   fakultas?: Prisma.XOR<Prisma.FakultasScalarRelationFilter, Prisma.FakultasWhereInput>
 }, "id_prodi" | "kode_prodi">
 
@@ -303,6 +306,7 @@ export type ProgramStudiCreateInput = {
   created_at?: bigint | number | null
   updated_at?: bigint | number | null
   kurikulum?: Prisma.KurikulumCreateNestedManyWithoutProgramStudiInput
+  mahasiswa?: Prisma.MahasiswaCreateNestedManyWithoutProgramStudiInput
   fakultas: Prisma.FakultasCreateNestedOneWithoutProgram_studiInput
 }
 
@@ -315,6 +319,7 @@ export type ProgramStudiUncheckedCreateInput = {
   created_at?: bigint | number | null
   updated_at?: bigint | number | null
   kurikulum?: Prisma.KurikulumUncheckedCreateNestedManyWithoutProgramStudiInput
+  mahasiswa?: Prisma.MahasiswaUncheckedCreateNestedManyWithoutProgramStudiInput
 }
 
 export type ProgramStudiUpdateInput = {
@@ -325,6 +330,7 @@ export type ProgramStudiUpdateInput = {
   created_at?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   updated_at?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   kurikulum?: Prisma.KurikulumUpdateManyWithoutProgramStudiNestedInput
+  mahasiswa?: Prisma.MahasiswaUpdateManyWithoutProgramStudiNestedInput
   fakultas?: Prisma.FakultasUpdateOneRequiredWithoutProgram_studiNestedInput
 }
 
@@ -337,6 +343,7 @@ export type ProgramStudiUncheckedUpdateInput = {
   created_at?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   updated_at?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   kurikulum?: Prisma.KurikulumUncheckedUpdateManyWithoutProgramStudiNestedInput
+  mahasiswa?: Prisma.MahasiswaUncheckedUpdateManyWithoutProgramStudiNestedInput
 }
 
 export type ProgramStudiCreateManyInput = {
@@ -469,6 +476,20 @@ export type EnumJenjangStudiFieldUpdateOperationsInput = {
   set?: $Enums.JenjangStudi
 }
 
+export type ProgramStudiCreateNestedOneWithoutMahasiswaInput = {
+  create?: Prisma.XOR<Prisma.ProgramStudiCreateWithoutMahasiswaInput, Prisma.ProgramStudiUncheckedCreateWithoutMahasiswaInput>
+  connectOrCreate?: Prisma.ProgramStudiCreateOrConnectWithoutMahasiswaInput
+  connect?: Prisma.ProgramStudiWhereUniqueInput
+}
+
+export type ProgramStudiUpdateOneRequiredWithoutMahasiswaNestedInput = {
+  create?: Prisma.XOR<Prisma.ProgramStudiCreateWithoutMahasiswaInput, Prisma.ProgramStudiUncheckedCreateWithoutMahasiswaInput>
+  connectOrCreate?: Prisma.ProgramStudiCreateOrConnectWithoutMahasiswaInput
+  upsert?: Prisma.ProgramStudiUpsertWithoutMahasiswaInput
+  connect?: Prisma.ProgramStudiWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProgramStudiUpdateToOneWithWhereWithoutMahasiswaInput, Prisma.ProgramStudiUpdateWithoutMahasiswaInput>, Prisma.ProgramStudiUncheckedUpdateWithoutMahasiswaInput>
+}
+
 export type ProgramStudiCreateNestedOneWithoutKurikulumInput = {
   create?: Prisma.XOR<Prisma.ProgramStudiCreateWithoutKurikulumInput, Prisma.ProgramStudiUncheckedCreateWithoutKurikulumInput>
   connectOrCreate?: Prisma.ProgramStudiCreateOrConnectWithoutKurikulumInput
@@ -491,6 +512,7 @@ export type ProgramStudiCreateWithoutFakultasInput = {
   created_at?: bigint | number | null
   updated_at?: bigint | number | null
   kurikulum?: Prisma.KurikulumCreateNestedManyWithoutProgramStudiInput
+  mahasiswa?: Prisma.MahasiswaCreateNestedManyWithoutProgramStudiInput
 }
 
 export type ProgramStudiUncheckedCreateWithoutFakultasInput = {
@@ -501,6 +523,7 @@ export type ProgramStudiUncheckedCreateWithoutFakultasInput = {
   created_at?: bigint | number | null
   updated_at?: bigint | number | null
   kurikulum?: Prisma.KurikulumUncheckedCreateNestedManyWithoutProgramStudiInput
+  mahasiswa?: Prisma.MahasiswaUncheckedCreateNestedManyWithoutProgramStudiInput
 }
 
 export type ProgramStudiCreateOrConnectWithoutFakultasInput = {
@@ -542,6 +565,66 @@ export type ProgramStudiScalarWhereInput = {
   updated_at?: Prisma.BigIntNullableFilter<"ProgramStudi"> | bigint | number | null
 }
 
+export type ProgramStudiCreateWithoutMahasiswaInput = {
+  id_prodi?: string
+  kode_prodi: string
+  nama: string
+  jenjang_studi: $Enums.JenjangStudi
+  created_at?: bigint | number | null
+  updated_at?: bigint | number | null
+  kurikulum?: Prisma.KurikulumCreateNestedManyWithoutProgramStudiInput
+  fakultas: Prisma.FakultasCreateNestedOneWithoutProgram_studiInput
+}
+
+export type ProgramStudiUncheckedCreateWithoutMahasiswaInput = {
+  id_prodi?: string
+  id_fakultas: string
+  kode_prodi: string
+  nama: string
+  jenjang_studi: $Enums.JenjangStudi
+  created_at?: bigint | number | null
+  updated_at?: bigint | number | null
+  kurikulum?: Prisma.KurikulumUncheckedCreateNestedManyWithoutProgramStudiInput
+}
+
+export type ProgramStudiCreateOrConnectWithoutMahasiswaInput = {
+  where: Prisma.ProgramStudiWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProgramStudiCreateWithoutMahasiswaInput, Prisma.ProgramStudiUncheckedCreateWithoutMahasiswaInput>
+}
+
+export type ProgramStudiUpsertWithoutMahasiswaInput = {
+  update: Prisma.XOR<Prisma.ProgramStudiUpdateWithoutMahasiswaInput, Prisma.ProgramStudiUncheckedUpdateWithoutMahasiswaInput>
+  create: Prisma.XOR<Prisma.ProgramStudiCreateWithoutMahasiswaInput, Prisma.ProgramStudiUncheckedCreateWithoutMahasiswaInput>
+  where?: Prisma.ProgramStudiWhereInput
+}
+
+export type ProgramStudiUpdateToOneWithWhereWithoutMahasiswaInput = {
+  where?: Prisma.ProgramStudiWhereInput
+  data: Prisma.XOR<Prisma.ProgramStudiUpdateWithoutMahasiswaInput, Prisma.ProgramStudiUncheckedUpdateWithoutMahasiswaInput>
+}
+
+export type ProgramStudiUpdateWithoutMahasiswaInput = {
+  id_prodi?: Prisma.StringFieldUpdateOperationsInput | string
+  kode_prodi?: Prisma.StringFieldUpdateOperationsInput | string
+  nama?: Prisma.StringFieldUpdateOperationsInput | string
+  jenjang_studi?: Prisma.EnumJenjangStudiFieldUpdateOperationsInput | $Enums.JenjangStudi
+  created_at?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  updated_at?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  kurikulum?: Prisma.KurikulumUpdateManyWithoutProgramStudiNestedInput
+  fakultas?: Prisma.FakultasUpdateOneRequiredWithoutProgram_studiNestedInput
+}
+
+export type ProgramStudiUncheckedUpdateWithoutMahasiswaInput = {
+  id_prodi?: Prisma.StringFieldUpdateOperationsInput | string
+  id_fakultas?: Prisma.StringFieldUpdateOperationsInput | string
+  kode_prodi?: Prisma.StringFieldUpdateOperationsInput | string
+  nama?: Prisma.StringFieldUpdateOperationsInput | string
+  jenjang_studi?: Prisma.EnumJenjangStudiFieldUpdateOperationsInput | $Enums.JenjangStudi
+  created_at?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  updated_at?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  kurikulum?: Prisma.KurikulumUncheckedUpdateManyWithoutProgramStudiNestedInput
+}
+
 export type ProgramStudiCreateWithoutKurikulumInput = {
   id_prodi?: string
   kode_prodi: string
@@ -549,6 +632,7 @@ export type ProgramStudiCreateWithoutKurikulumInput = {
   jenjang_studi: $Enums.JenjangStudi
   created_at?: bigint | number | null
   updated_at?: bigint | number | null
+  mahasiswa?: Prisma.MahasiswaCreateNestedManyWithoutProgramStudiInput
   fakultas: Prisma.FakultasCreateNestedOneWithoutProgram_studiInput
 }
 
@@ -560,6 +644,7 @@ export type ProgramStudiUncheckedCreateWithoutKurikulumInput = {
   jenjang_studi: $Enums.JenjangStudi
   created_at?: bigint | number | null
   updated_at?: bigint | number | null
+  mahasiswa?: Prisma.MahasiswaUncheckedCreateNestedManyWithoutProgramStudiInput
 }
 
 export type ProgramStudiCreateOrConnectWithoutKurikulumInput = {
@@ -585,6 +670,7 @@ export type ProgramStudiUpdateWithoutKurikulumInput = {
   jenjang_studi?: Prisma.EnumJenjangStudiFieldUpdateOperationsInput | $Enums.JenjangStudi
   created_at?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   updated_at?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mahasiswa?: Prisma.MahasiswaUpdateManyWithoutProgramStudiNestedInput
   fakultas?: Prisma.FakultasUpdateOneRequiredWithoutProgram_studiNestedInput
 }
 
@@ -596,6 +682,7 @@ export type ProgramStudiUncheckedUpdateWithoutKurikulumInput = {
   jenjang_studi?: Prisma.EnumJenjangStudiFieldUpdateOperationsInput | $Enums.JenjangStudi
   created_at?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   updated_at?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  mahasiswa?: Prisma.MahasiswaUncheckedUpdateManyWithoutProgramStudiNestedInput
 }
 
 export type ProgramStudiCreateManyFakultasInput = {
@@ -615,6 +702,7 @@ export type ProgramStudiUpdateWithoutFakultasInput = {
   created_at?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   updated_at?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   kurikulum?: Prisma.KurikulumUpdateManyWithoutProgramStudiNestedInput
+  mahasiswa?: Prisma.MahasiswaUpdateManyWithoutProgramStudiNestedInput
 }
 
 export type ProgramStudiUncheckedUpdateWithoutFakultasInput = {
@@ -625,6 +713,7 @@ export type ProgramStudiUncheckedUpdateWithoutFakultasInput = {
   created_at?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   updated_at?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   kurikulum?: Prisma.KurikulumUncheckedUpdateManyWithoutProgramStudiNestedInput
+  mahasiswa?: Prisma.MahasiswaUncheckedUpdateManyWithoutProgramStudiNestedInput
 }
 
 export type ProgramStudiUncheckedUpdateManyWithoutFakultasInput = {
@@ -643,10 +732,12 @@ export type ProgramStudiUncheckedUpdateManyWithoutFakultasInput = {
 
 export type ProgramStudiCountOutputType = {
   kurikulum: number
+  mahasiswa: number
 }
 
 export type ProgramStudiCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   kurikulum?: boolean | ProgramStudiCountOutputTypeCountKurikulumArgs
+  mahasiswa?: boolean | ProgramStudiCountOutputTypeCountMahasiswaArgs
 }
 
 /**
@@ -666,6 +757,13 @@ export type ProgramStudiCountOutputTypeCountKurikulumArgs<ExtArgs extends runtim
   where?: Prisma.KurikulumWhereInput
 }
 
+/**
+ * ProgramStudiCountOutputType without action
+ */
+export type ProgramStudiCountOutputTypeCountMahasiswaArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MahasiswaWhereInput
+}
+
 
 export type ProgramStudiSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id_prodi?: boolean
@@ -676,6 +774,7 @@ export type ProgramStudiSelect<ExtArgs extends runtime.Types.Extensions.Internal
   created_at?: boolean
   updated_at?: boolean
   kurikulum?: boolean | Prisma.ProgramStudi$kurikulumArgs<ExtArgs>
+  mahasiswa?: boolean | Prisma.ProgramStudi$mahasiswaArgs<ExtArgs>
   fakultas?: boolean | Prisma.FakultasDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.ProgramStudiCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["programStudi"]>
@@ -715,6 +814,7 @@ export type ProgramStudiSelectScalar = {
 export type ProgramStudiOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id_prodi" | "id_fakultas" | "kode_prodi" | "nama" | "jenjang_studi" | "created_at" | "updated_at", ExtArgs["result"]["programStudi"]>
 export type ProgramStudiInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   kurikulum?: boolean | Prisma.ProgramStudi$kurikulumArgs<ExtArgs>
+  mahasiswa?: boolean | Prisma.ProgramStudi$mahasiswaArgs<ExtArgs>
   fakultas?: boolean | Prisma.FakultasDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.ProgramStudiCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -729,6 +829,7 @@ export type $ProgramStudiPayload<ExtArgs extends runtime.Types.Extensions.Intern
   name: "ProgramStudi"
   objects: {
     kurikulum: Prisma.$KurikulumPayload<ExtArgs>[]
+    mahasiswa: Prisma.$MahasiswaPayload<ExtArgs>[]
     fakultas: Prisma.$FakultasPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1134,6 +1235,7 @@ readonly fields: ProgramStudiFieldRefs;
 export interface Prisma__ProgramStudiClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   kurikulum<T extends Prisma.ProgramStudi$kurikulumArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProgramStudi$kurikulumArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$KurikulumPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  mahasiswa<T extends Prisma.ProgramStudi$mahasiswaArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProgramStudi$mahasiswaArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MahasiswaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   fakultas<T extends Prisma.FakultasDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FakultasDefaultArgs<ExtArgs>>): Prisma.Prisma__FakultasClient<runtime.Types.Result.GetResult<Prisma.$FakultasPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1593,6 +1695,30 @@ export type ProgramStudi$kurikulumArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.KurikulumScalarFieldEnum | Prisma.KurikulumScalarFieldEnum[]
+}
+
+/**
+ * ProgramStudi.mahasiswa
+ */
+export type ProgramStudi$mahasiswaArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Mahasiswa
+   */
+  select?: Prisma.MahasiswaSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Mahasiswa
+   */
+  omit?: Prisma.MahasiswaOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MahasiswaInclude<ExtArgs> | null
+  where?: Prisma.MahasiswaWhereInput
+  orderBy?: Prisma.MahasiswaOrderByWithRelationInput | Prisma.MahasiswaOrderByWithRelationInput[]
+  cursor?: Prisma.MahasiswaWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MahasiswaScalarFieldEnum | Prisma.MahasiswaScalarFieldEnum[]
 }
 
 /**

@@ -1,4 +1,3 @@
-// scripts/ingest.ts
 import fs from "fs";
 import path from "path";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";

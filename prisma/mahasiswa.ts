@@ -4,14 +4,39 @@ import {
     StatusMahasiswa,
     StatusPembayaran,
 } from '../src/generated/prisma/client';
-import dataMhs from '../prisma/data/angkatan-2023.json';
 import { prismaInstanceForSeeding } from './seed';
+
+import fs from 'fs';
+import path from 'path';
 
 const CHUNK_SIZE = 250;
 const HASH_ROUNDS = 10;
+const DEFAULT_PASSWORD = '12345678';
+
+const loadMahasiswaData = (angkatan: number) => {
+    const dir = path.join(
+        process.cwd(),
+        `prisma/data/mahasiswa/${angkatan}`,
+    );
+
+    return fs
+        .readdirSync(dir)
+        .filter((file) => file.endsWith('.json'))
+        .flatMap((file) => {
+            const content = fs.readFileSync(
+                path.join(dir, file),
+                'utf-8',
+            );
+
+            return JSON.parse(content);
+        });
+};
+
+const dataMhs = loadMahasiswaData(2023);
 
 export const seedMahasiswa = async () => {
     console.log('🚀 START: Seeding data Mahasiswa...');
+
 
     try {
         // ==============================
@@ -25,6 +50,8 @@ export const seedMahasiswa = async () => {
         if (!role) {
             throw new Error('❌ Role MAHASISWA tidak ditemukan.');
         }
+
+        const hashedDefaultPassword = await bcrypt.hash(DEFAULT_PASSWORD, HASH_ROUNDS);
 
         // ==============================
         // 2. Seed User Mahasiswa (Chunking)
@@ -40,7 +67,7 @@ export const seedMahasiswa = async () => {
 
                     return {
                         username: String(mhs.NIM),
-                        password: await bcrypt.hash(String(mhs.PASSWORD), HASH_ROUNDS),
+                        password: hashedDefaultPassword,
                         id_role: role.id_role,
                         created_at: now,
                         updated_at: now,

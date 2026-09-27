@@ -20,40 +20,89 @@ const adapter = new PrismaPg({
 
 export const prismaInstanceForSeeding = new PrismaClient({ adapter });
 
+// ======================================================
+// Seeder Registry
+// ======================================================
 
+const seeders = {
+    role: seedRole,
+    fakultas: seedFakultas,
+    "periode-akademik": seedPeriodeAkademik,
+    "program-studi": seedProgramStudi,
+    dosen: seedDosen,
+    kurikulum: seedKurikulum,
+    "mata-kuliah": seedMataKuliah,
+    "detail-kurikulum": seedDetailKurikulum,
+    mahasiswa: seedMahasiswa,
+    kelas: seedKelasDitawarkan,
+} as const;
 
+type SeederName = keyof typeof seeders;
 
+// ======================================================
+// Seed Semua
+// ======================================================
 
-export async function main() {
-    console.log("🚀 Memulai proses seeding...");
+async function seedAll() {
+    console.log("🚀 Memulai proses seeding semua data...");
 
-    // 1. Paling dasar (tidak punya dependency)
     await seedRole();
 
     await Promise.all([
         seedFakultas(),
         seedPeriodeAkademik(),
-        seedMataKuliah(), // mata kuliah tidak bergantung apa pun
+        seedMataKuliah(),
     ]);
 
-    // 2. Bergantung ke Fakultas
     await seedProgramStudi();
 
-    // 3. Bergantung ke Program Studi
     await Promise.all([
-        seedDosen(),      // bikin User DOSEN + Dosen
-        seedKurikulum(),  // bergantung ke Program Studi
+        seedDosen(),
+        seedKurikulum(),
     ]);
 
-    // 4. Bergantung ke Kurikulum + Mata Kuliah
     await seedDetailKurikulum();
 
-    // 5. Bergantung ke Dosen + Kurikulum + Program Studi
-    await seedMahasiswa(); // bikin User MAHASISWA + Mahasiswa
+    await seedMahasiswa();
 
-    await seedKelasDitawarkan(); // bikin Kelas Ditawarkan + Dosen Pengajar Kelas + KRS + Detail KRS
+    await seedKelasDitawarkan();
 
-    console.log("🏁 Seeding selesai.");
+    console.log("🏁 Semua seeding selesai.");
+}
+
+// ======================================================
+// Main
+// ======================================================
+
+export async function main() {
+    const target = process.argv[2];
+
+    // Tidak ada argument → seed semuanya
+    if (!target) {
+        await seedAll();
+        return;
+    }
+
+    // Validasi nama seeder
+    if (!(target in seeders)) {
+        console.error(`❌ Seeder "${target}" tidak ditemukan.`);
+
+        console.log("\nSeeder yang tersedia:");
+        Object.keys(seeders).forEach((name) => {
+            console.log(`  - ${name}`);
+        });
+
+        process.exitCode = 1;
+        return;
+    }
+
+    console.log(`🚀 Menjalankan seeder: ${target}`);
+
+    const seeder = seeders[target as SeederName];
+
+    await seeder();
+
+    console.log(`🏁 Seeder "${target}" selesai.`);
 }
 
 main()
