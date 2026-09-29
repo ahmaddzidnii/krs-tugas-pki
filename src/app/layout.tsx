@@ -19,6 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       className={`h-full antialiased scroll-smooth`}
+      data-scroll-behavior="smooth"
       style={{ scrollbarGutter: "stable" }}
     >
       <body className="min-h-full flex flex-col">

@@ -1,23 +1,25 @@
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
-import { AIMessage, createAgent, HumanMessage, SystemMessage } from "langchain";
+import { createAgent, HumanMessage, SystemMessage } from "langchain";
 import type { StructuredToolInterface } from "@langchain/core/tools";
 
-import prisma from "@/lib/prisma";
-
-import { getKrsSystemPrompt } from "./lib/prompts";
-
-import { LOGOUT_USER } from "./tools/logout_user";
-import { SEARCH_ACADEMIC_RULES } from "./tools/academic_rules";
-import { GET_CURRENT_DATETIME } from "./tools/current_datetime";
-import { GET_KRS_SCHEDULE_STATUS } from "./tools/krs_schedule_status";
-import { GET_CURRENT_KRS_INFO } from "./tools/get_current_krs_info";
-import { GET_KRS_REQUIREMENTS } from "./tools/get_krs_requirements";
-import { GET_OFFERED_COURSES } from "./tools/get_offered_courses";
-import { GET_CURRENT_KRS } from "./tools/get_current_krs";
-import { GET_COURSE_CAPACITY } from "./tools/get_course_capacity";
-import { ADD_KRS_COURSE } from "./tools/add_krs_course";
-import { REMOVE_KRS_COURSE } from "./tools/remove_krs_course";
 import { getServerSideSession } from "@/lib/auth";
+
+import {
+    LOGOUT_USER,
+    SEARCH_ACADEMIC_RULES,
+    GET_CURRENT_DATETIME,
+    GET_KRS_SCHEDULE_STATUS,
+    GET_CURRENT_KRS_INFO,
+    GET_KRS_REQUIREMENTS,
+    GET_OFFERED_COURSES,
+    GET_CURRENT_KRS,
+    GET_COURSE_CAPACITY,
+    ADD_KRS_COURSE,
+    REMOVE_KRS_COURSE,
+} from "./tools";
+
+import { getLLM } from "./lib/llm";
+import { MemoryManager } from "./lib/memory";
+import { getKrsSystemPrompt } from "./lib/prompts";
 
 
 const PUBLIC_TOOLS: StructuredToolInterface[] = [
@@ -52,120 +54,97 @@ interface KrsAgentConfig {
 }
 
 export class KrsAgent {
-    private readonly threadId: string;
-    private readonly context: KrsAgentContext;
-    private readonly apiKey: string;
+    private readonly memoryManager: MemoryManager;
+    private readonly llm: ReturnType<typeof getLLM>;
 
-    constructor({ threadId, apiKey, context }: KrsAgentConfig) {
-        this.threadId = threadId;
-        this.apiKey = apiKey;
-        this.context = context;
+    constructor(private config: KrsAgentConfig) {
+        this.memoryManager = new MemoryManager(config.threadId, config.apiKey);
+        this.llm = getLLM(config.apiKey);
     }
 
-    private async loadMemory() {
-        const chatHistory = await prisma.message.findMany({
-            where: { threadId: this.threadId },
-            orderBy: { created_at: "desc" },
-            take: 12,
-        });
+    private getAvailableTools(): StructuredToolInterface[] {
+        const isGuest = !this.config.context.session;
 
-
-        return chatHistory.map((msg) =>
-            msg.role === "USER"
-                ? new HumanMessage(msg.content)
-                : new AIMessage(msg.content)
-        ).reverse();
-    }
-
-    public async streamResponse(userMessage: string): Promise<ReadableStream> {
-        const threadId = this.threadId;
-        const isGuest = !this.context.session;
-
-        // Load tools based on context
-        const availableTools = [...PUBLIC_TOOLS];
-
+        const tools = [...PUBLIC_TOOLS];
         if (!isGuest) {
-            availableTools.push(...AUTHENTICATED_INFO_TOOLS);
-
-            if (this.context.isKrsOpen) {
-                availableTools.push(...KRS_ACTION_TOOLS);
+            tools.push(...AUTHENTICATED_INFO_TOOLS);
+            if (this.config.context.isKrsOpen) {
+                tools.push(...KRS_ACTION_TOOLS);
             }
         }
+        return tools;
+    }
 
-        const formattedHistory = await this.loadMemory();
+    private async buildMessages(userMessage: string) {
+        const workingMemory =
+            await this.memoryManager.loadWorkingMemory();
 
-
-        const humanMessage = new HumanMessage(userMessage);
-
-        const mahasiswa = this.context.session?.user
+        const mahasiswa = this.config.context.session?.user;
+        const isGuest = !this.config.context.session;
 
         const baseSystemPrompt = getKrsSystemPrompt(isGuest);
 
         const studentContext = mahasiswa
-            ? new SystemMessage(`
-KONTEKS MAHASISWA SAAT INI:
-- Nama: ${mahasiswa.nama}
-- Program Studi: ${mahasiswa.programStudi.jenjang_studi} ${mahasiswa.programStudi.nama}
-- Fakultas: ${mahasiswa.fakultas}
-`.trim())
+            ? `
+                KONTEKS MAHASISWA SAAT INI:
+                - Nama: ${mahasiswa.nama}
+                - Program Studi: ${mahasiswa.programStudi.jenjang_studi} ${mahasiswa.programStudi.nama}
+                - Fakultas: ${mahasiswa.fakultas}
+                `.trim()
             : null;
 
         const systemPrompt = new SystemMessage(
-            [
-                baseSystemPrompt.content,
-                studentContext?.content,
-            ]
+            [baseSystemPrompt.content, studentContext]
                 .filter(Boolean)
                 .join("\n\n")
         );
-        const messages = [
+
+        return [
             systemPrompt,
-            ...formattedHistory,
-            humanMessage,
+            ...workingMemory,
+            new HumanMessage(userMessage),
         ];
+    }
 
-        const llm = new ChatGoogleGenerativeAI({
-            model: "gemini-3.5-flash-lite",
-            temperature: 0,
-            apiKey: this.apiKey,
-        });
+    public async streamResponse(userMessage: string): Promise<ReadableStream> {
+        const availableTools = this.getAvailableTools();
+        const messages = await this.buildMessages(userMessage);
 
-        const agent = createAgent({ model: llm, tools: availableTools });
+        const agent = createAgent({ model: this.llm, tools: availableTools });
 
         const eventStream = agent.streamEvents(
             { messages: messages },
             {
                 version: "v2",
                 configurable: {
-                    session: this.context.session,
+                    session: this.config.context.session,
                 }
             }
 
         );
 
         return new ReadableStream({
-            async start(controller) {
+            start: async (controller) => {
                 const encoder = new TextEncoder();
                 let fullAiResponse = "";
 
                 try {
                     for await (const event of eventStream) {
-                        // Debug semua event LangChain
                         console.log(`[${event.event}]`, event.name ?? "");
 
                         switch (event.event) {
                             case "on_tool_start":
-                                console.log("🟢 TOOL START:", event.name);
+                                console.log("[TOOL START:]", event.name);
                                 console.log("INPUT:", event.data.input);
                                 break;
 
                             case "on_tool_end":
-                                console.log("🔵 TOOL END:", event.name);
+                                console.log("[TOOL END:]", event.name);
                                 console.log("OUTPUT:", event.data.output);
                                 break;
 
                             case "on_tool_error":
-                                console.error("🔴 TOOL ERROR:", event.name);
+                                console.error("[TOOL ERROR:]", event.name);
                                 console.error(event.data.error);
                                 break;
 
@@ -186,7 +165,7 @@ KONTEKS MAHASISWA SAAT INI:
                             }
 
                             case "on_chat_model_end":
-                                console.log("🟣 MODEL END");
+                                console.log("[MODEL END]");
                                 break;
 
                             default:
@@ -194,29 +173,11 @@ KONTEKS MAHASISWA SAAT INI:
                         }
                     }
 
+                    await this.memoryManager.saveInteraction(userMessage, fullAiResponse);
 
                     controller.enqueue(
                         encoder.encode("event: done\ndata: [DONE]\n\n")
                     );
-
-                    const currentEpoch = Date.now();
-
-                    await prisma.message.createMany({
-                        data: [
-                            {
-                                threadId: threadId,
-                                role: "USER",
-                                content: userMessage,
-                                created_at: currentEpoch - 1,
-                            },
-                            {
-                                threadId: threadId,
-                                role: "ASSISTANT",
-                                content: fullAiResponse,
-                                created_at: currentEpoch,
-                            },
-                        ],
-                    });
 
                 } catch (error) {
                     controller.enqueue(
