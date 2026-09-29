@@ -3,8 +3,8 @@ import {
     Prisma,
     StatusMahasiswa,
     StatusPembayaran,
-} from '../src/generated/prisma/client';
-import { prismaInstanceForSeeding } from './seed';
+} from '../../src/generated/prisma/client';
+import { prismaInstanceForSeeding } from '../seed';
 
 import fs from 'fs';
 import path from 'path';

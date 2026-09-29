@@ -1,5 +1,5 @@
-import { Prisma } from "../src/generated/prisma/client";
-import { prismaInstanceForSeeding } from "./seed";
+import { Prisma } from "../../src/generated/prisma/client";
+import { prismaInstanceForSeeding } from "../seed";
 
 const FAKULTAS_DATA = [
     { kode_fakultas: "F01", nama: "ADAB DAN ILMU BUDAYA", singkatan: "FADIB" },

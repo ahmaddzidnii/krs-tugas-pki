@@ -1,7 +1,7 @@
 import { Hari, Prisma } from "@/generated/prisma/client";
 
-import dataKelas from "../prisma/data/krs_penawaran.json";
-import { prismaInstanceForSeeding } from "./seed";
+import dataKelas from "../data/krs_penawaran.json";
+import { prismaInstanceForSeeding } from "../seed";
 
 export function timeStringToMinutes(timeStr: string): number {
     const [hours, minutes] = timeStr.split(":").map(Number);

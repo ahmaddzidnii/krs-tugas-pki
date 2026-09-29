@@ -1,4 +1,4 @@
-import { prismaInstanceForSeeding } from "./seed";
+import { prismaInstanceForSeeding } from "../seed";
 
 const roles = [
     { nama_role: "MAHASISWA" },

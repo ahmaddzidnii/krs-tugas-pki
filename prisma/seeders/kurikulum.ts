@@ -1,6 +1,6 @@
-import { Prisma } from '../src/generated/prisma/client';
-import kurikulumjson from '../prisma/data/kurikulum_master.json';
-import { prismaInstanceForSeeding } from './seed';
+import { Prisma } from '../../src/generated/prisma/client';
+import kurikulumjson from '../data/kurikulum_master.json';
+import { prismaInstanceForSeeding } from '../seed';
 
 export const seedKurikulum = async () => {
     console.log('🚀 START: Seeding data kurikulum...');

@@ -1,5 +1,5 @@
-import { PeriodeAkademik } from "../src/generated/prisma/client";
-import { prismaInstanceForSeeding } from "./seed";
+import { PeriodeAkademik } from "../../src/generated/prisma/client";
+import { prismaInstanceForSeeding } from "../seed";
 
 export async function seedPeriodeAkademik() {
     const periodeAkademikData = [

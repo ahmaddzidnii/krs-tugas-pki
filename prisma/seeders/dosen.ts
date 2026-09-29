@@ -1,7 +1,7 @@
 import * as bcrypt from 'bcryptjs';
-import { Prisma, JenisDosen } from '../src/generated/prisma/client';
-import dosenData from './data/gabungan_dosen.json';
-import { prismaInstanceForSeeding } from './seed';
+import { Prisma, JenisDosen } from '../../src/generated/prisma/client';
+import dosenData from '../data/gabungan_dosen.json';
+import { prismaInstanceForSeeding } from '../seed';
 
 const CHUNK_SIZE = 250;
 const HASH_ROUNDS = 10;

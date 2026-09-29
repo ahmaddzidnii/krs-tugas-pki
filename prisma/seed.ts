@@ -3,16 +3,16 @@ import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
 
-import { seedPeriodeAkademik } from "./periode-akademik";
-import { seedFakultas } from "./fakultas";
-import { seedProgramStudi } from "./program-studi";
-import { seedRole } from "./role";
-import { seedDosen } from "./dosen";
-import { seedKurikulum } from "./kurikulum";
-import { seedMataKuliah } from "./mata-kuliah";
-import { seedDetailKurikulum } from "./detail-kurikulum";
-import { seedMahasiswa } from "./mahasiswa";
-import { seedKelasDitawarkan } from "./kelas";
+import { seedPeriodeAkademik } from "./seeders/periode-akademik";
+import { seedFakultas } from "./seeders/fakultas";
+import { seedProgramStudi } from "./seeders/program-studi";
+import { seedRole } from "./seeders/role";
+import { seedDosen } from "./seeders/dosen";
+import { seedKurikulum } from "./seeders/kurikulum";
+import { seedMataKuliah } from "./seeders/mata-kuliah";
+import { seedDetailKurikulum } from "./seeders/detail-kurikulum";
+import { seedMahasiswa } from "./seeders/mahasiswa";
+import { seedKelasDitawarkan } from "./seeders/kelas";
 
 const adapter = new PrismaPg({
     connectionString: process.env.DATABASE_URL,

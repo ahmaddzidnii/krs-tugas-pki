@@ -1,6 +1,6 @@
 
-import matakuliahJson from '../prisma/data/matakuliah_master.json';
-import { prismaInstanceForSeeding } from './seed';
+import matakuliahJson from '../data/matakuliah_master.json';
+import { prismaInstanceForSeeding } from '../seed';
 
 export const seedMataKuliah = async () => {
     console.log('🚀 START: Seeding data Mata Kuliah...');
