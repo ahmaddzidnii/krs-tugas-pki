@@ -50,7 +50,7 @@ export function ChatBubble({ role, content, time, avatar, className, bubbleClass
       <div className={cn("flex max-w-[80%] flex-col", isUser ? "items-end" : "items-start")}>
         <div
           className={cn(
-            "rounded-2xl px-4 py-3 text-sm leading-relaxed break-words",
+            "rounded-2xl px-4 py-3 text-sm leading-relaxed wrap-break-word",
             isUser ? "rounded-br-md bg-primary/60 text-primary-foreground" : "rounded-bl-md bg-muted text-foreground",
             bubbleClassName,
           )}
@@ -59,7 +59,7 @@ export function ChatBubble({ role, content, time, avatar, className, bubbleClass
           {isThinking ? <TypingIndicator /> : isUser ? content : <MarkdownRenderer content={content} />}
         </div>
 
-        {time && <span className="mt-1 px-1 text-xs text-muted-foreground">{time}</span>}
+        {isUser && time && <span className="mt-1 px-1 text-xs text-muted-foreground">{time}</span>}
       </div>
     </div>
   );

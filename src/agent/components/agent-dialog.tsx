@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ChevronDown } from "lucide-react";
 
 import ChatList from "./chat-list";
@@ -17,37 +17,55 @@ interface SukaKrsAgentModalProps {
 export function AgentDialog({ open, onClose }: SukaKrsAgentModalProps) {
   const hasMessages = useAgentStore((state) => state.messages.length > 0);
 
+  // State untuk menahan unmount saat animasi close berjalan
+  const [shouldRender, setShouldRender] = useState(open);
+  const [isVisible, setIsVisible] = useState(false);
+
   useEffect(() => {
-    if (!open) return;
+    if (open) {
+      setShouldRender(true);
+      // Double rAF / setTimeout kecil agar browser trigger class transition
+      const frame = requestAnimationFrame(() => setIsVisible(true));
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
 
-    const originalOverflow = document.body.style.overflow;
+      return () => {
+        cancelAnimationFrame(frame);
+        document.body.style.overflow = originalOverflow;
+      };
+    } else {
+      setIsVisible(false);
+      const timer = setTimeout(() => {
+        setShouldRender(false);
+      }, 250); // Sesuaikan dengan duration-250 di class transition
 
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.body.style.overflow = originalOverflow;
-    };
+      return () => clearTimeout(timer);
+    }
   }, [open]);
 
-  if (!open) return null;
+  if (!shouldRender) return null;
 
   return (
-    <div className="fixed inset-0 z-[100]">
-      {/* Backdrop */}
+    <div
+      className={`fixed inset-0 z-100 transition-opacity duration-250 ease-out ${
+        isVisible ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+      }`}
+    >
+      {/* Backdrop dengan transisi blur & fade */}
       <div
         className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
         aria-hidden="true"
+        onClick={onClose}
       />
 
-      {/* Modal */}
+      {/* Modal Card */}
       <section
         role="dialog"
         aria-modal="true"
         aria-labelledby="suka-krs-agent-title"
-        className="
+        className={`
           absolute
           inset-0
-
           flex flex-col
           overflow-hidden
           bg-white
@@ -59,7 +77,11 @@ export function AgentDialog({ open, onClose }: SukaKrsAgentModalProps) {
           sm:w-137.5
           sm:rounded-2xl
           sm:shadow-2xl
-        "
+
+          origin-bottom-right
+          transition-all duration-250 ease-out
+          ${isVisible ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-4 sm:translate-y-6"}
+        `}
       >
         {/* Header */}
         <header
