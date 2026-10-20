@@ -3,7 +3,7 @@
 /prisma/data
 
 # Data RAG Lokal
-/data/vectorstore/
+/data/docs/
 *.index
 
 # dependencies
