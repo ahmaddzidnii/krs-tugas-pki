@@ -1,4 +1,3 @@
-// src/ai/tools/academic-rules.tool.ts
 import { z } from "zod";
 import { tool } from "@langchain/core/tools";
 import { searchVectorStore } from "../rag/vectorstore";

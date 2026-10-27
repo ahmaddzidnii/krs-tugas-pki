@@ -1,5 +1,4 @@
 import { useAuth } from "@/contexts/auth-context";
-import { BookOpen, CalendarDays, Search } from "lucide-react";
 import { QuickActions } from "./quick-actions";
 
 export const WelcomeState = () => {
@@ -20,10 +19,6 @@ export const WelcomeState = () => {
       </div>
 
       <div className="my-8 flex items-center gap-3">
-        <div className="h-px flex-1 bg-border" />
-
-        <span className="shrink-0 text-xs text-muted-foreground">atau jelajahi</span>
-
         <div className="h-px flex-1 bg-border" />
       </div>
 
