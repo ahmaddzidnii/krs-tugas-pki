@@ -8,3 +8,4 @@ export * from "./get_current_krs_status";
 export * from "./get_course_capacity";
 export * from "./add_krs_course";
 export * from "./remove_krs_course";
+export * from "./swap-krs";

@@ -586,6 +586,239 @@ export const krsRouter = createTRPCRouter({
                     ok: true,
                 };
             });
-        })
+        }),
+    tukarKelas: krsActionProcedure
+        .input(
+            z.object({
+                id_kelas_batal: z.string(),
+                id_kelas_ambil: z.string(),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            const mahasiswa = ctx.mahasiswa;
+            const periode = ctx.periodeAktif;
+
+            if (input.id_kelas_batal === input.id_kelas_ambil) {
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: "MAAF, KELAS YANG INGIN DITUKAR DAN DIAMBIL TIDAK BOLEH SAMA.",
+                });
+            }
+
+            if (mahasiswa.status_pembayaran !== "LUNAS") {
+                throw new TRPCError({
+                    code: "FORBIDDEN",
+                    message: "Status pembayaran belum lunas.",
+                });
+            }
+
+            if (mahasiswa.status_mahasiswa !== "AKTIF") {
+                throw new TRPCError({
+                    code: "FORBIDDEN",
+                    message: "Mahasiswa tidak dapat mengisi KRS.",
+                });
+            }
+
+            return prisma.$transaction(async (tx) => {
+                // 1. Ambil data KRS mahasiswa
+                const krs = await tx.krs.findUniqueOrThrow({
+                    where: {
+                        id_mahasiswa_id_periode: {
+                            id_mahasiswa: mahasiswa.id_mahasiswa,
+                            id_periode: periode.id_periode,
+                        },
+                    },
+                });
+
+                // 2. Ambil data kelas yang ingin dibatalkan (beserta relasinya)
+                const detailBatal = await tx.detailKrs.findUnique({
+                    where: {
+                        id_krs_id_kelas: {
+                            id_krs: krs.id_krs,
+                            id_kelas: input.id_kelas_batal,
+                        },
+                    },
+                    include: {
+                        kelas: {
+                            include: {
+                                mataKuliah: true,
+                            },
+                        },
+                    },
+                });
+
+                if (!detailBatal) {
+                    throw new TRPCError({
+                        code: "NOT_FOUND",
+                        message: "MAAF, KELAS YANG INGIN DIBATALKAN TIDAK DITEMUKAN DI KRS ANDA.",
+                    });
+                }
+
+                // 3. Ambil data kelas baru yang ingin diambil
+                const kelasAmbil = await tx.kelasDitawarkan.findUnique({
+                    where: {
+                        id_kelas: input.id_kelas_ambil,
+                    },
+                    include: {
+                        mataKuliah: true,
+                        jadwalKelas: true,
+                    },
+                });
+
+                if (!kelasAmbil) {
+                    throw new TRPCError({
+                        code: "NOT_FOUND",
+                        message: "MAAF, DATA KELAS TUJUAN TIDAK DITEMUKAN.",
+                    });
+                }
+
+                const namaKelasAmbilFormatted = `${kelasAmbil.mataKuliah.nama} ${kelasAmbil.nama_kelas}`;
+
+                // 4. Cek kuota kelas baru
+                if (kelasAmbil.terisi >= kelasAmbil.kuota) {
+                    throw new TRPCError({
+                        code: "BAD_REQUEST",
+                        message: `MAAF, KUOTA UNTUK KELAS {${namaKelasAmbilFormatted}} SUDAH PENUH.`,
+                    });
+                }
+
+                // 5. Cek apakah kelas baru sudah terdaftar sebelumnya di KRS
+                const duplicate = await tx.detailKrs.findUnique({
+                    where: {
+                        id_krs_id_kelas: {
+                            id_krs: krs.id_krs,
+                            id_kelas: kelasAmbil.id_kelas,
+                        },
+                    },
+                });
+
+                if (duplicate) {
+                    throw new TRPCError({
+                        code: "CONFLICT",
+                        message: `MAAF, KELAS {${namaKelasAmbilFormatted}} SUDAH ADA DI KRS ANDA.`,
+                    });
+                }
+
+                // 6. Ambil semua kelas yang sedang diambil KECUALI kelas yang dibatalkan
+                const kelasTersisa = await tx.detailKrs.findMany({
+                    where: {
+                        id_krs: krs.id_krs,
+                        NOT: {
+                            id_kelas: input.id_kelas_batal,
+                        },
+                    },
+                    include: {
+                        kelas: {
+                            include: {
+                                mataKuliah: true,
+                                jadwalKelas: true,
+                            },
+                        },
+                    },
+                });
+
+                // 7. Cek bentrok jadwal kelas baru terhadap kelas yang tersisa
+                for (const detail of kelasTersisa) {
+                    const kelasLama = detail.kelas;
+                    const isBentrok = kelasLama.jadwalKelas.some((lama) =>
+                        kelasAmbil.jadwalKelas.some((baru) => {
+                            if (lama.hari !== baru.hari) return false;
+                            return (
+                                lama.waktu_mulai < baru.waktu_selesai &&
+                                baru.waktu_mulai < lama.waktu_selesai
+                            );
+                        })
+                    );
+
+                    if (isBentrok) {
+                        const namaKelasLamaFormatted = `${kelasLama.mataKuliah.nama} ${kelasLama.nama_kelas}`;
+                        throw new TRPCError({
+                            code: "CONFLICT",
+                            message: `MAAF, JADWAL BENTROK DENGAN KELAS {${namaKelasLamaFormatted}}.`,
+                        });
+                    }
+                }
+
+                // 8. Hitung batas SKS setelah kelas lama dibatalkan dan kelas baru dimasukkan
+                const totalSksSetelahDrop = kelasTersisa.reduce(
+                    (sum, item) => sum + item.kelas.mataKuliah.sks,
+                    0
+                );
+                const totalSksBaru = totalSksSetelahDrop + kelasAmbil.mataKuliah.sks;
+
+                if (totalSksBaru > mahasiswa.jatah_sks) {
+                    throw new TRPCError({
+                        code: "BAD_REQUEST",
+                        message: `MAAF, PERGANTIAN KELAS AKAN MELEBIHI BATAS SKS ANDA. SKS BARU: ${totalSksBaru}, JATAH SKS: ${mahasiswa.jatah_sks}`,
+                    });
+                }
+
+                // 9. Mutasi DB: Hapus kelas lama dari KRS
+                await tx.detailKrs.delete({
+                    where: {
+                        id_krs_id_kelas: {
+                            id_krs: krs.id_krs,
+                            id_kelas: input.id_kelas_batal,
+                        },
+                    },
+                });
+
+                // 10. Mutasi DB: Kurangi counter terisi pada kelas lama
+                await tx.kelasDitawarkan.update({
+                    where: {
+                        id_kelas: input.id_kelas_batal,
+                    },
+                    data: {
+                        terisi: { decrement: 1 },
+                        version: { increment: 1 },
+                    },
+                });
+
+                // 11. Mutasi DB: Tambahkan kelas baru ke detail KRS
+                await tx.detailKrs.create({
+                    data: {
+                        id_krs: krs.id_krs,
+                        id_kelas: kelasAmbil.id_kelas,
+                    },
+                });
+
+                // 12. Mutasi DB: Tambah counter terisi kelas baru (dengan optimistic lock)
+                const updateKelasBaru = await tx.kelasDitawarkan.updateMany({
+                    where: {
+                        id_kelas: kelasAmbil.id_kelas,
+                        version: kelasAmbil.version,
+                        terisi: {
+                            lt: kelasAmbil.kuota,
+                        },
+                    },
+                    data: {
+                        terisi: { increment: 1 },
+                        version: { increment: 1 },
+                    },
+                });
+
+                if (updateKelasBaru.count === 0) {
+                    throw new TRPCError({
+                        code: "CONFLICT",
+                        message: "MAAF, KUOTA KELAS BARU SAJA PENUH ATAU DATA BERUBAH. SILAKAN COBA LAGI.",
+                    });
+                }
+
+                // 13. Mutasi DB: Update total SKS pada master KRS
+                await tx.krs.update({
+                    where: {
+                        id_krs: krs.id_krs,
+                    },
+                    data: {
+                        total_sks_diambil: totalSksBaru,
+                        version: { increment: 1 },
+                    },
+                });
+
+                return {
+                    ok: true,
+                };
+            });
+        }),
 });
 
