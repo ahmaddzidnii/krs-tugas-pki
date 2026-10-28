@@ -7,48 +7,79 @@ type MarkdownRendererProps = {
 
 export function MarkdownRenderer({ content }: MarkdownRendererProps) {
   return (
-    <ReactMarkdown
-      remarkPlugins={[remarkGfm]}
-      components={{
-        h1: ({ children }) => <h1 className="mt-6 mb-3 text-2xl font-bold">{children}</h1>,
-        h2: ({ children }) => <h2 className="mt-5 mb-2 text-xl font-semibold">{children}</h2>,
-        h3: ({ children }) => <h3 className="mt-4 mb-2 text-lg font-semibold">{children}</h3>,
+    <div className="w-full min-w-0 max-w-full text-sm leading-relaxed">
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          h1: ({ children }) => <h1 className="mt-4 mb-2 text-xl font-bold">{children}</h1>,
+          h2: ({ children }) => <h2 className="mt-3 mb-2 text-lg font-semibold">{children}</h2>,
+          h3: ({ children }) => <h3 className="mt-2.5 mb-1.5 text-base font-semibold">{children}</h3>,
 
-        p: ({ children }) => <p className="mb-3 leading-7">{children}</p>,
+          p: ({ children }) => <p className="mb-2.5 leading-6 last:mb-0">{children}</p>,
 
-        ul: ({ children }) => <ul className="mb-3 ml-5 list-disc space-y-1">{children}</ul>,
+          ul: ({ children }) => <ul className="mb-2.5 ml-5 list-disc space-y-1">{children}</ul>,
+          ol: ({ children }) => <ol className="mb-2.5 ml-5 list-decimal space-y-1">{children}</ol>,
+          li: ({ children }) => <li className="leading-6">{children}</li>,
 
-        ol: ({ children }) => <ol className="mb-3 ml-5 list-decimal space-y-1">{children}</ol>,
+          a: ({ href, children }) => (
+            <a
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary underline underline-offset-2 hover:opacity-80"
+            >
+              {children}
+            </a>
+          ),
 
-        li: ({ children }) => <li>{children}</li>,
+          blockquote: ({ children }) => (
+            <blockquote className="my-2 border-l-2 border-border pl-3 italic text-muted-foreground">{children}</blockquote>
+          ),
 
-        a: ({ href, children }) => (
-          <a
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-500 underline"
-          >
-            {children}
-          </a>
-        ),
+          // Wrapper table diisolasi dengan overflow horizontal & min-w-max agar tidak terpotong
+          table: ({ children }) => (
+            <div className="my-3 w-full max-w-full overflow-x-auto rounded-lg border border-border">
+              <table className="w-full min-w-max border-collapse text-xs sm:text-sm">{children}</table>
+            </div>
+          ),
 
-        blockquote: ({ children }) => (
-          <blockquote className="border-l-4 border-muted-foreground/30 pl-4 italic text-muted-foreground">{children}</blockquote>
-        ),
+          thead: ({ children }) => <thead className="bg-muted/70">{children}</thead>,
 
-        table: ({ children }) => (
-          <div className="mb-3 overflow-x-auto">
-            <table className="w-full border-collapse text-sm">{children}</table>
-          </div>
-        ),
+          th: ({ children }) => (
+            <th className="border-b border-border px-3 py-2 text-left font-semibold whitespace-nowrap text-foreground">{children}</th>
+          ),
 
-        th: ({ children }) => <th className="border border-border bg-muted px-3 py-2 text-left font-semibold">{children}</th>,
+          td: ({ children }) => <td className="border-b border-border px-3 py-2 whitespace-nowrap text-foreground/90">{children}</td>,
 
-        td: ({ children }) => <td className="border border-border px-3 py-2">{children}</td>,
-      }}
-    >
-      {content}
-    </ReactMarkdown>
+          // Code block & inline code handling agar tidak mendesak bubble
+          pre: ({ children }) => (
+            <div className="my-2 w-full max-w-full overflow-x-auto rounded-md bg-muted/80 p-3">
+              <pre className="text-xs font-mono">{children}</pre>
+            </div>
+          ),
+
+          code: ({ className, children, ...props }) => {
+            const isInline = !className;
+            return isInline ? (
+              <code
+                className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs font-medium"
+                {...props}
+              >
+                {children}
+              </code>
+            ) : (
+              <code
+                className={className}
+                {...props}
+              >
+                {children}
+              </code>
+            );
+          },
+        }}
+      >
+        {content}
+      </ReactMarkdown>
+    </div>
   );
 }

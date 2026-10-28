@@ -5,7 +5,7 @@ export class MemoryManager {
     constructor(private threadId: string, private apiKey: string) { }
 
     // Working Memory
-    async loadWorkingMemory(limit = 12) {
+    async loadWorkingMemory(limit = 16) {
         const chatHistory = await prisma.message.findMany({
             where: { threadId: this.threadId },
             orderBy: { created_at: "desc" },

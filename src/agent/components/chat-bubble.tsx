@@ -4,7 +4,6 @@ import type { ComponentProps, ReactNode } from "react";
 import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { MessageRole } from "@/generated/prisma/enums";
 
-// 1. Buat komponen titik tiga (bisa ditaruh di luar atau dibikin file terpisah)
 const TypingIndicator = () => (
   <div className="flex h-5 items-center gap-1.5 px-1 py-1">
     <div
@@ -28,7 +27,6 @@ type ChatBubbleProps = ComponentProps<"div"> & {
   time?: string;
   avatar?: ReactNode;
   isThinking?: boolean;
-
   bubbleClassName?: string;
   avatarClassName?: string;
 };
@@ -38,25 +36,33 @@ export function ChatBubble({ role, content, time, avatar, className, bubbleClass
 
   return (
     <div
-      className={cn("flex w-full gap-3", isUser ? "justify-end" : "justify-start", className)}
+      className={cn("flex w-full min-w-0 gap-3", isUser ? "justify-end" : "justify-start", className)}
       {...props}
     >
       {!isUser && (
-        <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/60 text-white", avatarClassName)}>
+        <div className={cn("flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/60 text-white", avatarClassName)}>
           {avatar ?? <Bot size={18} />}
         </div>
       )}
 
-      <div className={cn("flex max-w-[80%] flex-col", isUser ? "items-end" : "items-start")}>
+      {/* Tambahkan min-w-0 agar flex child bisa mengecil sesuai batasan lebar */}
+      <div className={cn("flex max-w-[85%] min-w-0 flex-col sm:max-w-[80%]", isUser ? "items-end" : "items-start")}>
         <div
           className={cn(
-            "rounded-2xl px-4 py-3 text-sm leading-relaxed wrap-break-word",
+            "w-full min-w-0 max-w-full overflow-x-auto rounded-2xl px-4 py-3 text-sm leading-relaxed break-words [overflow-wrap:anywhere]",
             isUser ? "rounded-br-md bg-primary/60 text-primary-foreground" : "rounded-bl-md bg-muted text-foreground",
             bubbleClassName,
           )}
         >
-          {/* 2. Logic kondisional untuk nge-render titik tiga atau teks */}
-          {isThinking ? <TypingIndicator /> : isUser ? content : <MarkdownRenderer content={content} />}
+          {isThinking ? (
+            <TypingIndicator />
+          ) : isUser ? (
+            content
+          ) : (
+            <div className="min-w-0 w-full overflow-x-auto">
+              <MarkdownRenderer content={content} />
+            </div>
+          )}
         </div>
 
         {isUser && time && <span className="mt-1 px-1 text-xs text-muted-foreground">{time}</span>}

@@ -59,6 +59,7 @@ export function AgentDialog({ open, onClose }: SukaKrsAgentModalProps) {
       />
 
       {/* Modal Card */}
+      {/* Modal Card */}
       <section
         role="dialog"
         aria-modal="true"
@@ -74,10 +75,12 @@ export function AgentDialog({ open, onClose }: SukaKrsAgentModalProps) {
           sm:right-5
           sm:bottom-5
           sm:h-[min(700px,calc(100vh-40px))]
-          sm:w-137.5
+          sm:w-[550px]
+          sm:max-w-[calc(100vw-40px)]
           sm:rounded-2xl
           sm:shadow-2xl
 
+          min-w-0
           origin-bottom-right
           transition-all duration-250 ease-out
           ${isVisible ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-4 sm:translate-y-6"}
@@ -90,8 +93,8 @@ export function AgentDialog({ open, onClose }: SukaKrsAgentModalProps) {
             border-b px-5 py-4
           "
         >
-          <div className="flex items-center gap-3">
-            <div className="relative size-10 overflow-hidden rounded-full bg-white">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="relative size-10 shrink-0 overflow-hidden rounded-full bg-white">
               <Image
                 src="/ai-logo.png"
                 alt=""
@@ -101,15 +104,15 @@ export function AgentDialog({ open, onClose }: SukaKrsAgentModalProps) {
               />
             </div>
 
-            <div className="flex flex-col gap-0.5">
+            <div className="flex flex-col gap-0.5 truncate">
               <h2
                 id="suka-krs-agent-title"
-                className="font-semibold leading-tight"
+                className="font-semibold leading-tight truncate"
               >
                 SUKA KRS Agent
               </h2>
 
-              <p className="text-xs text-muted-foreground">Asisten akademik berbasis AI</p>
+              <p className="text-xs text-muted-foreground truncate">Asisten akademik berbasis AI</p>
             </div>
           </div>
 
@@ -118,7 +121,7 @@ export function AgentDialog({ open, onClose }: SukaKrsAgentModalProps) {
             onClick={onClose}
             aria-label="Close SUKA KRS Agent"
             className="
-              rounded-lg p-2
+              shrink-0 rounded-lg p-2
               text-muted-foreground
               transition-colors
               hover:bg-muted
@@ -129,11 +132,13 @@ export function AgentDialog({ open, onClose }: SukaKrsAgentModalProps) {
           </button>
         </header>
 
-        {/* Chat */}
-        <main className="min-h-0 flex-1 overflow-y-auto px-5 py-10">{hasMessages ? <ChatList /> : <WelcomeState />}</main>
+        {/* Chat Body */}
+        <main className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto px-5 py-6">{hasMessages ? <ChatList /> : <WelcomeState />}</main>
 
         {/* Input */}
-        <ChatInput />
+        <div className="shrink-0">
+          <ChatInput />
+        </div>
       </section>
     </div>
   );

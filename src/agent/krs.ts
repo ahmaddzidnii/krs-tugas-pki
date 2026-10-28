@@ -43,16 +43,53 @@ function colorize(color: string, value: string): string {
   return `${color}${value}${terminal.reset}`;
 }
 
-function formatLogValue(value: unknown): string {
+const MAX_LOG_LENGTH = 800;
+const MAX_LOG_LINES = 25;
+
+function formatLogValue(value: unknown, truncate = true): string {
+  let formatted: string;
+
   if (typeof value === "string") {
-    return value;
+    formatted = value;
+  } else {
+    try {
+      const target =
+        value && typeof value === "object" && "content" in value
+          ? (value as { content: unknown }).content
+          : value;
+
+      formatted =
+        JSON.stringify(
+          target,
+          (_key, item: unknown) =>
+            typeof item === "bigint" ? `${item.toString()}n` : item,
+          2
+        ) ?? String(target);
+    } catch {
+      formatted = String(value);
+    }
   }
 
-  try {
-    return JSON.stringify(value, (_key, item: unknown) => (typeof item === "bigint" ? `${item.toString()}n` : item), 2) ?? String(value);
-  } catch {
-    return String(value);
+  if (!truncate) return formatted;
+
+  const lines = formatted.split("\n");
+  if (lines.length > MAX_LOG_LINES) {
+    const preview = lines.slice(0, MAX_LOG_LINES).join("\n");
+    return `${preview}\n${colorize(
+      terminal.dim,
+      `... [TRUNCATED ${lines.length - MAX_LOG_LINES} lines omitted]`
+    )}`;
   }
+
+  // 2. Potong jika string terlalu panjang (misal JSON sebaris yang padat)
+  if (formatted.length > MAX_LOG_LENGTH) {
+    return `${formatted.slice(0, MAX_LOG_LENGTH)}\n${colorize(
+      terminal.dim,
+      `... [TRUNCATED ${formatted.length - MAX_LOG_LENGTH} chars omitted]`
+    )}`;
+  }
+
+  return formatted;
 }
 
 function getErrorMessage(error: unknown): string {
@@ -158,6 +195,7 @@ KONTEKS MAHASISWA SAAT INI:
           configurable: {
             session: this.config.context.session,
           },
+          recursionLimit: 60
         },
       );
     } catch (error) {
